@@ -32,12 +32,12 @@ const Navbar = () => {
           <FaSearch className="text-Black w-5 h-5 hidden md:block" />
         </div>
 
-        <a href="/" className="flex-1 flex justify-center">
+        <a href="/" className="flex-1 flex justify-center relative">
           <img
             src={logo}
             alt="logo"
-            className="object-contain h-8 md:h-10"
-            style={{ maxWidth: "200px" }}
+            style={{ width: "200px", height: "140px" }}
+            className="object-contain h-24 md:h-24 absolute top-1/2 transform -translate-y-1/2"
           />
         </a>
 

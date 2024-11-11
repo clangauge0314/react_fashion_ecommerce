@@ -32,28 +32,28 @@ const Category = () => {
         ))}
       </div>
 
-      <div className="mt-8">
+      <div className="mt-8 flex flex-col md:flex-row items-center gap-4">
         <p className="font-semibold uppercase md:rotate-90 text-center bg-black text-white md:p-1.5 p-2 rounded-sm inline-flex">
           Explore new and popular styles
         </p>
         <div>
           <Link to="/">
-            <img src={Image1} alt="" />
+            <img src={Image1} alt="" className="w-full hover:scale-105 transition-all duration-200"/>
           </Link>
         </div>
         <div className="md:w-1/2">
           <div className="grid grid-cols-2 gap-2">
             <Link to="/">
-              <img src={Image2} alt="" />
+              <img src={Image2} alt="" className="w-full hover:scale-105 transition-all duration-200"/>
             </Link>
             <Link to="/">
-              <img src={Image3} alt="" />
+              <img src={Image3} alt="" className="w-full hover:scale-105 transition-all duration-200"/>
             </Link>
             <Link to="/">
-              <img src={Image4} alt="" />
+              <img src={Image4} alt="" className="w-full hover:scale-105 transition-all duration-200"/>
             </Link>
             <Link to="/">
-              <img src={Image5} alt="" />
+              <img src={Image5} alt="" className="w-full hover:scale-105 transition-all duration-200"/>
             </Link>
           </div>
         </div>
