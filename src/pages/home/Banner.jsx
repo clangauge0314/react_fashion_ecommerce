@@ -4,7 +4,7 @@ import { FaShoppingBag } from "react-icons/fa";
 
 const Banner = () => {
   return (
-    <div className="bg-primaryBG py-12 xl:px-28 px-4">
+    <div className="bg-primaryBG py-14 xl:px-28 px-4">
       <div className="py-28 flex flex-col md:flex-row justify-between items-center gap-14 md:translate-x-20">
         <div className="md:w-1/2 ml-auto">
           <h1 className="text-5xl font-light mb-5">Collections</h1>
@@ -17,7 +17,7 @@ const Banner = () => {
             Shop Now
           </button>
         </div>
-        <div className="md:w-1/2 ml-auto">
+        <div className="md:w-1/2 mr-24">
           <img src={bannerImg} alt="" />
         </div>
       </div>
