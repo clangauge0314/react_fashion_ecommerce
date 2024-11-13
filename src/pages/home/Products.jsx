@@ -6,9 +6,22 @@ const Products = () => {
 
     useEffect(() => {
         const fetchData = async () => {
-            
+            try {
+              const response = await fetch("/products.json", {
+                headers: {
+                  Accept: "application / json",
+                },
+              });
+              const data = await response.json();
+              setProducts(data);
+            } catch(error) {
+              console.log("Error fetching Data", error);
+            }
         }
+        fetchData();
     }, []);
+
+    console.log(products);
 
   return (
     <div className="max-w-screen-2xl container mx-auto xl:px-28 px-4 mb-12">
