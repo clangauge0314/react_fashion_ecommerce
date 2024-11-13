@@ -41,15 +41,6 @@ const Navbar = () => {
           />
         </a>
 
-        <div className="text-lg text-black flex items-center gap-6 hidden md:flex">
-          <a href="/" className="flex items-center gap-2">
-            <FaUser /> Account
-          </a>
-          <a href="/" className="flex items-center gap-2">
-            <FaShoppingBag /> Shopping
-          </a>
-        </div>
-
         <div className="sm:hidden">
           <button onClick={toggleMenu} className="md:hidden">
             {isMenuOpen ? (
