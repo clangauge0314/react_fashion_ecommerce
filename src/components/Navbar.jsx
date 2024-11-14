@@ -53,15 +53,6 @@ const Navbar = () => {
       </nav>
 
       <hr />
-      <div className="pt-4">
-        <ul className="lg:flex items-center justify-between text-black hidden space-x-6">
-          {navItems.map(({ title, path }) => (
-            <li key={title} className="hover:text-orange-500 text-base">
-              <Link to={path}>{title}</Link>
-            </li>
-          ))}
-        </ul>
-      </div>
 
       <div className="lg:hidden">
         <ul
