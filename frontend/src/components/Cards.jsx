@@ -7,7 +7,7 @@ const Cards = ({ filteredItems }) => {
       {filteredItems && filteredItems.length > 0 ? (
         filteredItems.slice(0, 8).map((item) => (
           <div key={item.id}>
-            <Link to={`/shop/${item.id}`}>
+            <Link to={`/product/${item.id}`}>
               <img
                 src={item.image}
                 alt=""

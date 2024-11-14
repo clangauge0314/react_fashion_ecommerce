@@ -9,6 +9,7 @@ const port = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
+app.use("/api/auth", authRoutes);
 
 mongoose
   .connect(process.env.MONGO_URI, {
@@ -17,7 +18,6 @@ mongoose
   .then(() => console.log("Connected to MongoDB"))
   .catch((error) => console.error("MongoDB connection error:", error));
 
-app.use("/api/auth", authRoutes);
 
 app.get("/", (req, res) => {
   res.send("Hello, World!");

@@ -42,7 +42,7 @@ const SingleProduct = () => {
     <div className="mt-28 max-w-screen-2xl container mx-auto xl:px-28 px-4">
       <div className="flex items-center gap-2 pt-8 text-Black/50">
         <a href="/">Home</a>{" "}
-        <a href="/shop" className="font-semibold text-black">
+        <a href="/product" className="font-semibold text-black">
           / Shop
         </a>
       </div>

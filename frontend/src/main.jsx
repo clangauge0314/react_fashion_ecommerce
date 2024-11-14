@@ -6,6 +6,8 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Home from "./pages/home/Home.jsx";
 import SingleProduct from "./pages/home/SingleProduct.jsx";
 import CategoryProducts from "./pages/home/CategoryProducts.jsx";
+import AdminPage from "./pages/admin/AdminPage.jsx";
+import AdminDashboard from "./pages/admin/AdminDashboard.jsx";
 
 const router = createBrowserRouter([
   {
@@ -17,7 +19,7 @@ const router = createBrowserRouter([
         element: <Home />,
       },
       {
-        path: "/shop/:id",
+        path: "/product/:id",
         element: <SingleProduct />,
       },
       {
@@ -25,6 +27,14 @@ const router = createBrowserRouter([
         element: <CategoryProducts />,
       },
     ],
+  },
+  {
+    path: "/admin",
+    element: <AdminPage />,
+  },
+  {
+    path: "/admin/dashboard",
+    element: <AdminDashboard />,
   },
 ]);
 

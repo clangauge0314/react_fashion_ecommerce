@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
+const verifyToken = require("../middleware/verifyToken");
 
 router.post("/register", async (req, res) => {
   try {
@@ -34,6 +35,10 @@ router.post("/login", async (req, res) => {
       return res.status(400).json({ message: "Invalid email or password" });
     }
 
+    if (!process.env.JWT_SECRET) {
+      throw new Error("JWT_SECRET is not defined");
+    }
+
     const token = jwt.sign(
       { id: user._id, email: user.email },
       process.env.JWT_SECRET,
@@ -44,8 +49,13 @@ router.post("/login", async (req, res) => {
 
     res.status(200).json({ message: "Login successful", token });
   } catch (error) {
-    res.status(500).json({ message: "Server error", error });
+    console.error("Login error:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
   }
+});
+
+router.get("/admin/dashboard", verifyToken, (req, res) => {
+  res.status(200).json({ message: "Welcome to the admin dashboard!" });
 });
 
 module.exports = router;
