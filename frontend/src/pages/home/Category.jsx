@@ -40,7 +40,7 @@ const Category = () => {
             },
           }}
           className="mySwiper"
-          style={{ display: "flex", justifyContent: "center" }} 
+          style={{ display: "flex", justifyContent: "center" }}
         >
           {[...Array(8)].map((_, index) => (
             <SwiperSlide key={index} className="flex justify-center">
@@ -73,6 +73,40 @@ const Category = () => {
             </SwiperSlide>
           ))}
         </Swiper>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4 md:hidden mt-8">
+        {[...Array(8)].map((_, index) => (
+          <Card
+            key={index}
+            className="bg-white p-4 rounded-lg shadow-2xl hover:shadow-[0px_15px_30px_rgba(0,0,0,0.3)] transition-shadow duration-300"
+          >
+            <CardHeader floated={false} className="h-40">
+              <img
+                src={`https://docs.material-tailwind.com/img/team-${
+                  (index % 3) + 1
+                }.jpg`}
+                alt={`profile-${index + 1}`}
+                className="w-full h-full object-cover rounded-lg"
+              />
+            </CardHeader>
+            <CardBody className="text-center mt-2">
+              <p className="text-lg font-semibold text-blue-gray-700 mb-2">
+                Natalie Paisley {index + 1}
+              </p>
+              <div className="flex justify-center mt-2">
+                <Button
+                  color="blue"
+                  variant="filled"
+                  className="flex items-center gap-2 bg-blue-500 text-white rounded-lg px-3 py-1 hover:bg-blue-600 transition-colors duration-300"
+                >
+                  Go to category
+                  <FaArrowRight />
+                </Button>
+              </div>
+            </CardBody>
+          </Card>
+        ))}
       </div>
 
       <div className="hidden lg:grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 justify-center">
