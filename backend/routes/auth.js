@@ -54,6 +54,33 @@ router.post("/login", async (req, res) => {
   }
 });
 
+router.post("/verify", async (req, res) => {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res
+      .status(401)
+      .json({ valid: false, message: "トークンがありません。" });
+  }
+
+  const token = authHeader.split(" ")[1];
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    const user = await User.findById(decoded.id);
+    if (!user) {
+      return res
+        .status(401)
+        .json({ valid: false, message: "ユーザーが存在しません。" });
+    }
+
+    res.status(200).json({ valid: true, user: decoded });
+  } catch (error) {
+    console.error("Token verification error:", error);
+    res.status(401).json({ valid: false, message: "無効なトークンです。" });
+  }
+});
+
 router.get("/admin/dashboard", verifyToken, (req, res) => {
   res.status(200).json({ message: "Welcome to the admin dashboard!" });
 });

@@ -23,6 +23,8 @@ function CreateProduct() {
     details: "",
     highlights: "",
     status: "",
+    gender: "man",
+    color: "red",
   });
 
   const handleChange = (e) => {
@@ -38,9 +40,13 @@ function CreateProduct() {
 
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
+    const imagesWithPreview = files.map((file) => ({
+      file,
+      preview: URL.createObjectURL(file),
+    }));
     setProduct((prev) => ({
       ...prev,
-      image: [...prev.image, ...files],
+      image: [...prev.image, ...imagesWithPreview],
     }));
   };
 
@@ -49,11 +55,12 @@ function CreateProduct() {
     if (!isUriValid) {
       Swal.fire(
         "エラー",
-        "유효한 URL 형식을 입력하세요 (http:// 또는 https://)",
+        "有効なURL形式を入力してください (http:// または https://)",
         "error"
       );
       return;
     }
+
     try {
       const formData = new FormData();
       formData.append("name", product.name);
@@ -64,28 +71,30 @@ function CreateProduct() {
       formData.append("details", product.details);
       formData.append("highlights", product.highlights);
       formData.append("status", product.status);
+      formData.append("gender", product.gender);
+      formData.append("color", product.color);
 
-      product.image.forEach((file) => {
-        formData.append("image", file);
+      product.image.forEach((imgObj) => {
+        formData.append("image", imgObj.file);
       });
 
       const token = localStorage.getItem("token");
-      await axios.post("http://localhost:3000/api/products", formData, {
+      await axios.post("http://183.107.128.217:3000/api/products", formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
         },
       });
-      Swal.fire("성공", "상품이 추가되었습니다", "success");
+      Swal.fire("成功", "商品が追加されました", "success");
       navigate("/admin/dashboard");
     } catch (error) {
-      console.error("상품을 추가할 수 없습니다:", error);
-      Swal.fire("에러", "상품을 추가할 수 없습니다", "error");
+      console.error("商品を追加できませんでした:", error);
+      Swal.fire("エラー", "商品を追加できませんでした", "error");
     }
   };
 
   const openModal = (img, index) => {
-    setCurrentImage(img);
+    setCurrentImage(img.preview);
     setCurrentIndex(index + 1);
     setIsModalOpen(true);
   };
@@ -167,17 +176,78 @@ function CreateProduct() {
                   {product.image.map((img, index) => (
                     <div key={index} className="relative">
                       <img
-                        src={img}
+                        src={img.preview}
                         alt={`Product-${index + 1}`}
                         className="w-16 h-16 rounded-md object-cover cursor-pointer"
-                        onClick={() => openModal(img, index)} // 이미지 클릭 시 모달 열기
+                        onClick={() => openModal(img, index)}
                       />
                       <span className="absolute top-1 right-1 bg-gray-800 text-white text-xs px-1 py-0.5 rounded">
-                        {index + 1} {/* 순서 표시 */}
+                        {index + 1}
                       </span>
                     </div>
                   ))}
                 </div>
+              </div>
+              <h3 className="font-semibold text-lg mt-6">色の選択</h3>
+              <div className="grid grid-cols-5 gap-2 mt-2">
+                {[
+                  { color: "red", bg: "bg-red-500" },
+                  { color: "orange", bg: "bg-orange-500" },
+                  { color: "yellow", bg: "bg-yellow-500" },
+                  { color: "green", bg: "bg-green-500" },
+                  { color: "blue", bg: "bg-blue-500" },
+                  { color: "navy", bg: "bg-[#001f3f]" },
+                  { color: "pink", bg: "bg-pink-500" },
+                  { color: "purple", bg: "bg-purple-500" },
+                  { color: "white", bg: "bg-white" },
+                  { color: "black", bg: "bg-black" },
+                ].map(({ color, bg }) => (
+                  <button
+                    type="button"
+                    key={color}
+                    onClick={() => setProduct((prev) => ({ ...prev, color }))}
+                    className={`w-8 h-8 rounded-full ${bg} border-2 ${
+                      product.color === color
+                        ? "border-black"
+                        : "border-transparent"
+                    }`}
+                    aria-label={color}
+                  ></button>
+                ))}
+              </div>
+              <h3 className="font-semibold text-lg mt-10">性別の選択</h3>
+              <div className="flex gap-4 mt-2">
+                {["male", "female", "unisex"].map((gender) => (
+                  <label
+                    key={gender}
+                    className={`flex items-center gap-2 cursor-pointer px-4 py-2 rounded-lg border-2 ${
+                      product.gender === gender
+                        ? "border-indigo-600"
+                        : "border-gray-300"
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="gender"
+                      value={gender}
+                      checked={product.gender === gender}
+                      onChange={(e) =>
+                        setProduct((prev) => ({
+                          ...prev,
+                          gender: e.target.value,
+                        }))
+                      }
+                      className="hidden"
+                    />
+                    <span className="capitalize">
+                      {gender === "male"
+                        ? "男性"
+                        : gender === "female"
+                        ? "女性"
+                        : "男女共用"}
+                    </span>
+                  </label>
+                ))}
               </div>
             </div>
           </div>
@@ -251,15 +321,37 @@ function CreateProduct() {
               />
             </label>
             <label className="block mt-4">
-              <span className="text-gray-700">ステータス</span>
-              <input
-                type="text"
-                name="status"
-                value={product.status}
-                onChange={handleChange}
-                className="mt-1 block w-full px-4 py-3 border-gray-300 rounded-lg shadow-md text-lg focus:border-indigo-500 focus:ring-indigo-500"
-                required
-              />
+              <span className="text-gray-700">即購入可</span>
+              <div className="flex gap-4 mt-2">
+                {[
+                  { label: "はい", value: "yes" },
+                  { label: "いいえ", value: "no" },
+                ].map((option) => (
+                  <label
+                    key={option.value}
+                    className={`flex items-center gap-2 cursor-pointer px-4 py-2 rounded-lg border-2 ${
+                      product.status === option.value
+                        ? "border-indigo-600"
+                        : "border-gray-300"
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="status"
+                      value={option.value}
+                      checked={product.status === option.value}
+                      onChange={(e) =>
+                        setProduct((prev) => ({
+                          ...prev,
+                          status: e.target.value,
+                        }))
+                      }
+                      className="hidden"
+                    />
+                    <span>{option.label}</span>
+                  </label>
+                ))}
+              </div>
             </label>
           </div>
 

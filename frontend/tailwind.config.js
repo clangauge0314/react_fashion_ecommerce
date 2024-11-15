@@ -6,6 +6,9 @@ export default {
       colors: {
         Black: "#1E2832",
         primaryBG: "#1e28320d",
+        navy: "#001f3f", 
+        white: "#ffffff",
+        black: "#000000",
       },
       fontFamily: {
         primary: ["Noto Sans JP", 'sans-serif'],

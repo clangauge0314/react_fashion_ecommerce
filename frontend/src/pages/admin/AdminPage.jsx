@@ -10,13 +10,16 @@ function AdminPage() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setError(""); 
+    setError("");
 
     try {
-      const response = await axios.post("http://localhost:3000/api/auth/login", {
-        email,
-        password,
-      });
+      const response = await axios.post(
+        "http://183.107.128.217:3000/api/auth/login",
+        {
+          email,
+          password,
+        }
+      );
 
       localStorage.setItem("token", response.data.token);
       navigate("/admin/dashboard");
@@ -24,6 +27,7 @@ function AdminPage() {
       if (error.response && error.response.data.message) {
         setError(error.response.data.message);
       } else {
+        alert(error);
         setError("ログインに失敗しました。再度お試しください。");
       }
     }
@@ -32,7 +36,9 @@ function AdminPage() {
   return (
     <div className="flex items-center justify-center h-screen bg-gray-100">
       <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-lg">
-        <h2 className="text-2xl font-bold text-center text-gray-800">管理者ログイン</h2>
+        <h2 className="text-2xl font-bold text-center text-gray-800">
+          管理者ログイン
+        </h2>
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
             <input
