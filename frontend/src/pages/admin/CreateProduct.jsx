@@ -10,13 +10,14 @@ function CreateProduct() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentImage, setCurrentImage] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(null);
+  const [isUriValid, setIsUriValid] = useState(true);
 
   const navigate = useNavigate();
   const [product, setProduct] = useState({
     name: "",
     price: "",
     image: [],
-    category: "Electronics",
+    category: "MARNI バッグ",
     mercari_uri: "",
     description: "",
     details: "",
@@ -26,30 +27,60 @@ function CreateProduct() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
+    if (name === "mercari_uri") {
+      const isValid = /^(http:\/\/|https:\/\/)/.test(value);
+      setIsUriValid(isValid);
+    }
+
     setProduct((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
-    const filePreviews = files.map((file) => URL.createObjectURL(file));
     setProduct((prev) => ({
       ...prev,
-      image: [...prev.image, ...filePreviews],
+      image: [...prev.image, ...files],
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!isUriValid) {
+      Swal.fire(
+        "エラー",
+        "유효한 URL 형식을 입력하세요 (http:// 또는 https://)",
+        "error"
+      );
+      return;
+    }
     try {
-      const token = localStorage.getItem("token");
-      await axios.post("http://localhost:3000/api/products", product, {
-        headers: { Authorization: `Bearer ${token}` },
+      const formData = new FormData();
+      formData.append("name", product.name);
+      formData.append("price", product.price);
+      formData.append("category", product.category);
+      formData.append("mercari_uri", product.mercari_uri);
+      formData.append("description", product.description);
+      formData.append("details", product.details);
+      formData.append("highlights", product.highlights);
+      formData.append("status", product.status);
+
+      product.image.forEach((file) => {
+        formData.append("image", file);
       });
-      Swal.fire("成功", "商品が追加されました", "success");
+
+      const token = localStorage.getItem("token");
+      await axios.post("http://localhost:3000/api/products", formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      Swal.fire("성공", "상품이 추가되었습니다", "success");
       navigate("/admin/dashboard");
     } catch (error) {
-      console.error("商品を追加できませんでした:", error);
-      Swal.fire("エラー", "商品を追加できませんでした", "error");
+      console.error("상품을 추가할 수 없습니다:", error);
+      Swal.fire("에러", "상품을 추가할 수 없습니다", "error");
     }
   };
 
@@ -94,6 +125,24 @@ function CreateProduct() {
                   rows="4"
                   className="mt-1 block w-full px-4 py-3 border-gray-300 rounded-lg shadow-md text-lg focus:border-indigo-500 focus:ring-indigo-500"
                 />
+              </label>
+
+              <label className="block mt-4">
+                <span className="text-gray-700">メルカリ URI</span>
+                <input
+                  type="text"
+                  name="mercari_uri"
+                  value={product.mercari_uri}
+                  onChange={handleChange}
+                  className={`mt-1 block w-full px-4 py-3 border ${
+                    isUriValid ? "border-gray-300" : "border-red-500"
+                  } rounded-lg shadow-md text-lg focus:border-indigo-500 focus:ring-indigo-500`}
+                />
+                {!isUriValid && (
+                  <p className="text-red-500 text-sm mt-1">
+                    URLの形式は http:// または https:// で始める必要があります。
+                  </p>
+                )}
               </label>
             </div>
 
