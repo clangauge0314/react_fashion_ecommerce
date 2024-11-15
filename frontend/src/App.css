@@ -3,3 +3,7 @@
 .title {
     @apply text-3xl font-semibold capitalize text-center my-8
 }
+
+.swal2-popup .swal2-input {
+    width: 80% !important;
+  }

@@ -8,6 +8,7 @@ import SingleProduct from "./pages/home/SingleProduct.jsx";
 import CategoryProducts from "./pages/home/CategoryProducts.jsx";
 import AdminPage from "./pages/admin/AdminPage.jsx";
 import AdminDashboard from "./pages/admin/AdminDashboard.jsx";
+import CreateProduct from "./pages/admin/CreateProduct.jsx";
 
 const router = createBrowserRouter([
   {
@@ -35,6 +36,10 @@ const router = createBrowserRouter([
   {
     path: "/admin/dashboard",
     element: <AdminDashboard />,
+  },
+  {
+    path: "/admin/create",
+    element: <CreateProduct />,
   },
 ]);
 
