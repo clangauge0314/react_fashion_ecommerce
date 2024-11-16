@@ -20,9 +20,9 @@ function AdminDashboard() {
     image: [],
     mercari_uri: "",
     description: "",
-    details: "",
-    highlights: "",
     status: "",
+    color: [],
+    stock: 0,
   });
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
@@ -66,6 +66,24 @@ function AdminDashboard() {
     }
   };
 
+  const handleMoveImage = (index, direction) => {
+    setEditData((prev) => {
+      const updatedImages = [...prev.image];
+      if (direction === "up" && index > 0) {
+        [updatedImages[index - 1], updatedImages[index]] = [
+          updatedImages[index],
+          updatedImages[index - 1],
+        ];
+      } else if (direction === "down" && index < updatedImages.length - 1) {
+        [updatedImages[index], updatedImages[index + 1]] = [
+          updatedImages[index + 1],
+          updatedImages[index],
+        ];
+      }
+      return { ...prev, image: updatedImages };
+    });
+  };
+
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {
       const matchesCategory =
@@ -107,6 +125,7 @@ function AdminDashboard() {
       },
       { Header: "商品名", accessor: "name" },
       { Header: "価格", accessor: "price" },
+      { Header: "在庫数", accessor: "stock" },
       {
         Header: "画像",
         accessor: "image",
@@ -128,7 +147,11 @@ function AdminDashboard() {
       { Header: "メルカリ URI", accessor: "mercari_uri" },
       { Header: "即購入可", accessor: "status" },
       { Header: "性別", accessor: "gender" },
-      { Header: "色", accessor: "color" },
+      {
+        Header: "色",
+        accessor: "color",
+        Cell: ({ value }) => (Array.isArray(value) ? value.join(", ") : value),
+      },
       {
         Header: "作成日",
         accessor: "createdAt",
@@ -216,17 +239,15 @@ function AdminDashboard() {
 
     const formData = new FormData();
 
-    // 문자열 데이터를 추가
     formData.append("name", editData.name);
     formData.append("price", editData.price);
     formData.append("category", editData.category);
     formData.append("mercari_uri", editData.mercari_uri);
     formData.append("description", editData.description);
-    formData.append("details", editData.details);
-    formData.append("highlights", editData.highlights);
     formData.append("status", editData.status);
     formData.append("gender", editData.gender);
     formData.append("color", editData.color);
+    formData.append("stock", editData.stock);
 
     editData.image.forEach((img) => {
       if (img.file) {
@@ -270,12 +291,11 @@ function AdminDashboard() {
             category: "",
             mercari_uri: "",
             description: "",
-            details: "",
-            highlights: "",
             status: "",
             image: [],
             gender: "male",
             color: "red",
+            stock: 0,
           }
         : {
             name: row.original.name,
@@ -283,21 +303,29 @@ function AdminDashboard() {
             category: row.original.category,
             mercari_uri: row.original.mercari_uri,
             description: row.original.description || "",
-            details: row.original.details || "",
-            highlights: row.original.highlights || "",
             status: row.original.status || "",
             image: Array.isArray(row.original.image) ? row.original.image : [],
             gender: row.original.gender || "male",
-            color: row.original.color || "red",
+            color: row.original.color || [],
+            stock: row.original.stock || 0,
           }
     );
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setEditData((prev) => ({ ...prev, [name]: value }));
-  };
+    setEditData((prev) => {
+      let newValue = value;
 
+      if (name === "stock") {
+        const stockValue = parseInt(value, 10);
+        if (stockValue < 0) return prev;
+        newValue = stockValue;
+      }
+
+      return { ...prev, [name]: newValue };
+    });
+  };
   const handleCategoryChange = (e) => {
     setSelectedCategory(e.target.value);
   };
@@ -314,6 +342,28 @@ function AdminDashboard() {
   const closeModal = () => {
     setModalOpen(false);
     setSelectedImage("");
+  };
+
+  const handleColorToggle = (selectedColor) => {
+    setEditData((prev) => {
+      const colorExists = prev.color.includes(selectedColor);
+      const updatedColors = colorExists
+        ? prev.color.filter((color) => color !== selectedColor)
+        : [...prev.color, selectedColor];
+      return { ...prev, color: updatedColors };
+    });
+  };
+
+  const handleStockChange = (newStock) => {
+    setEditData((prev) => {
+      const updatedStock = Math.max(newStock, 0);
+      const updatedStatus = updatedStock <= 1 ? "no" : prev.status;
+      return {
+        ...prev,
+        stock: updatedStock,
+        status: updatedStock <= 1 ? "no" : updatedStatus,
+      };
+    });
   };
 
   return (
@@ -514,33 +564,73 @@ function AdminDashboard() {
                               </label>
                               <label className="block mb-4">
                                 画像:
-                                <div className="mt-2 border border-dashed border-gray-300 p-4 rounded-md">
-                                  <label className="flex flex-col items-center cursor-pointer text-indigo-600">
+                                <div className="mt-2 border border-dashed border-gray-300 p-4 rounded-md relative">
+                                  <label
+                                    htmlFor="imageUpload"
+                                    className="flex flex-col items-center cursor-pointer text-indigo-600"
+                                  >
                                     画像を追加
-                                    <input
-                                      type="file"
-                                      accept="image/*"
-                                      multiple
-                                      onChange={(e) => handleImageUpload(e)}
-                                      className="hidden"
-                                    />
                                   </label>
-                                  <div className="mt-4 flex flex-wrap gap-4">
+                                  <input
+                                    id="imageUpload"
+                                    type="file"
+                                    accept="image/*"
+                                    multiple
+                                    onChange={(e) => handleImageUpload(e)}
+                                    className="hidden"
+                                  />
+
+                                  <div className="mt-4 flex flex-col gap-4">
                                     {editData.image.map((img, index) => (
                                       <div
                                         key={index}
-                                        className="relative group w-16 h-16"
+                                        className="relative flex items-center gap-4 border rounded-md p-2"
                                       >
+                                        <span className="absolute top-0 left-0 bg-black text-white text-xs px-1 py-0.5 rounded">
+                                          {index + 1}
+                                        </span>
                                         <img
                                           src={
                                             img.preview ||
                                             `http://183.107.128.217:3000/${img}`
                                           }
                                           alt={`Product-${index + 1}`}
-                                          className="w-full h-full rounded-md object-cover cursor-pointer"
+                                          className="w-20 h-20 rounded-md object-cover cursor-pointer"
                                         />
+                                        <div className="flex flex-col gap-1">
+                                          <button
+                                            onClick={() =>
+                                              handleMoveImage(index, "up")
+                                            }
+                                            disabled={index === 0}
+                                            className={`px-2 py-1 bg-blue-500 text-white rounded ${
+                                              index === 0 &&
+                                              "opacity-50 cursor-not-allowed"
+                                            }`}
+                                          >
+                                            上に移動
+                                          </button>
+                                          <button
+                                            onClick={() =>
+                                              handleMoveImage(index, "down")
+                                            }
+                                            disabled={
+                                              index ===
+                                              editData.image.length - 1
+                                            }
+                                            className={`px-2 py-1 bg-green-500 text-white rounded ${
+                                              index ===
+                                                editData.image.length - 1 &&
+                                              "opacity-50 cursor-not-allowed"
+                                            }`}
+                                          >
+                                            下に移動
+                                          </button>
+                                        </div>
                                         <button
-                                          onClick={() => {
+                                          onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
                                             setEditData((prev) => ({
                                               ...prev,
                                               image: prev.image.filter(
@@ -548,9 +638,9 @@ function AdminDashboard() {
                                               ),
                                             }));
                                           }}
-                                          className="absolute top-0 right-0 bg-red-600 text-white text-xs px-2 py-1 rounded-full"
+                                          className="px-2 py-1 bg-red-600 text-white rounded"
                                         >
-                                          ✕
+                                          ✕ 削除
                                         </button>
                                       </div>
                                     ))}
@@ -572,24 +662,6 @@ function AdminDashboard() {
                                 <textarea
                                   name="description"
                                   value={editData.description}
-                                  onChange={handleInputChange}
-                                  className="w-full p-2 border border-gray-300 rounded"
-                                ></textarea>
-                              </label>
-                              <label className="block mb-4">
-                                詳細:
-                                <textarea
-                                  name="details"
-                                  value={editData.details}
-                                  onChange={handleInputChange}
-                                  className="w-full p-2 border border-gray-300 rounded"
-                                ></textarea>
-                              </label>
-                              <label className="block mb-4">
-                                ハイライト:
-                                <textarea
-                                  name="highlights"
-                                  value={editData.highlights}
                                   onChange={handleInputChange}
                                   className="w-full p-2 border border-gray-300 rounded"
                                 ></textarea>
@@ -629,12 +701,16 @@ function AdminDashboard() {
                               </label>
 
                               <label className="block mb-4">
-                                色:
+                                色:{" "}
+                                <span className="ml-4 text-gray-600">
+                                  {" "}
+                                  {editData.color.join(", ") || "なし"}
+                                </span>
                                 <div
                                   className={`grid grid-rows-2 gap-2 mt-2`}
                                   style={{
                                     gridTemplateColumns:
-                                      "repeat(5, minmax(0, 1fr))", // 가로에 5개씩 배치
+                                      "repeat(5, minmax(0, 1fr))",
                                   }}
                                 >
                                   {[
@@ -655,14 +731,9 @@ function AdminDashboard() {
                                     <button
                                       type="button"
                                       key={color}
-                                      onClick={() =>
-                                        setEditData((prev) => ({
-                                          ...prev,
-                                          color,
-                                        }))
-                                      }
+                                      onClick={() => handleColorToggle(color)}
                                       className={`w-8 h-8 rounded-full ${bg} border-2 ${
-                                        editData.color === color
+                                        editData.color.includes(color)
                                           ? "border-black"
                                           : "border-transparent"
                                       }`}
@@ -675,31 +746,94 @@ function AdminDashboard() {
                               <label className="block mb-4">
                                 即購入可:
                                 <div className="flex gap-4 mt-2">
-                                  {[
-                                    { label: "はい", value: "yes" },
-                                    { label: "いいえ", value: "no" },
-                                  ].map((option) => (
-                                    <label
-                                      key={option.value}
-                                      className={`flex items-center gap-2 cursor-pointer px-4 py-2 rounded-lg border-2 ${
-                                        editData.status === option.value
-                                          ? "border-indigo-600"
-                                          : "border-gray-300"
-                                      }`}
-                                    >
-                                      <input
-                                        type="radio"
-                                        name="status"
-                                        value={option.value}
-                                        checked={
-                                          editData.status === option.value
-                                        }
-                                        onChange={handleInputChange}
-                                        className="hidden"
-                                      />
-                                      <span>{option.label}</span>
-                                    </label>
-                                  ))}
+                                  {/* 'はい' 버튼 */}
+                                  <label
+                                    className={`flex items-center gap-2 cursor-pointer px-4 py-2 rounded-lg border-2 ${
+                                      editData.status === "yes"
+                                        ? "border-indigo-600"
+                                        : "border-gray-300 opacity-50 cursor-not-allowed"
+                                    }`}
+                                  >
+                                    <input
+                                      type="radio"
+                                      name="status"
+                                      value="yes"
+                                      disabled={editData.stock <= 1}
+                                      checked={editData.status === "yes"}
+                                      onChange={(e) =>
+                                        setEditData((prev) => ({
+                                          ...prev,
+                                          status: e.target.value,
+                                        }))
+                                      }
+                                      className="hidden"
+                                    />
+                                    <span>はい</span>
+                                  </label>
+
+                                  <label
+                                    className={`flex items-center gap-2 cursor-pointer px-4 py-2 rounded-lg border-2 ${
+                                      editData.status === "no"
+                                        ? "border-indigo-600"
+                                        : "border-gray-300"
+                                    }`}
+                                  >
+                                    <input
+                                      type="radio"
+                                      name="status"
+                                      value="no"
+                                      checked={editData.status === "no"}
+                                      onChange={(e) =>
+                                        setEditData((prev) => ({
+                                          ...prev,
+                                          status: e.target.value,
+                                        }))
+                                      }
+                                      className="hidden"
+                                    />
+                                    <span>いいえ</span>
+                                  </label>
+                                </div>
+                              </label>
+                              <label className="block mb-4">
+                                在庫数:
+                                <div className="flex items-center space-x-2">
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      handleStockChange(editData.stock - 1)
+                                    }
+                                    disabled={editData.stock <= 0}
+                                    className={`px-3 py-2 bg-gray-300 text-gray-800 rounded-l-md ${
+                                      editData.stock <= 0
+                                        ? "opacity-50 cursor-not-allowed"
+                                        : "hover:bg-gray-400"
+                                    }`}
+                                  >
+                                    -
+                                  </button>
+
+                                  <input
+                                    type="number"
+                                    name="stock"
+                                    value={editData.stock}
+                                    onChange={(e) =>
+                                      handleStockChange(
+                                        parseInt(e.target.value, 10)
+                                      )
+                                    }
+                                    className="w-16 h-full px-3 py-2 text-center border-t border-b border-gray-300 rounded-none focus:outline-none focus:ring focus:ring-indigo-500"
+                                  />
+
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      handleStockChange(editData.stock + 1)
+                                    }
+                                    className="px-3 py-2 bg-gray-300 text-gray-800 rounded-r-md hover:bg-gray-400"
+                                  >
+                                    +
+                                  </button>
                                 </div>
                               </label>
                               <button

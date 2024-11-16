@@ -10,7 +10,6 @@ function CreateProduct() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentImage, setCurrentImage] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(null);
-  const [isUriValid, setIsUriValid] = useState(true);
 
   const navigate = useNavigate();
   const [product, setProduct] = useState({
@@ -20,22 +19,35 @@ function CreateProduct() {
     category: "MARNI バッグ",
     mercari_uri: "",
     description: "",
-    details: "",
-    highlights: "",
-    status: "",
-    gender: "man",
-    color: "red",
+    status: "yes",
+    gender: "male",
+    color: [],
+    stock: 0,
   });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    let newValue = value;
 
-    if (name === "mercari_uri") {
-      const isValid = /^(http:\/\/|https:\/\/)/.test(value);
-      setIsUriValid(isValid);
+    if (name === "stock") {
+      const stockValue = parseInt(value, 10);
+      if (stockValue < 0) return; 
+      newValue = stockValue;
     }
 
-    setProduct((prev) => ({ ...prev, [name]: value }));
+    setProduct((prev) => {
+      const updatedProduct = { ...prev, [name]: newValue };
+
+      if (name === "stock") {
+        if (newValue < 2) {
+          updatedProduct.status = "no";
+        } else {
+          updatedProduct.status = prev.status; 
+        }
+      }
+
+      return updatedProduct;
+    });
   };
 
   const handleImageUpload = (e) => {
@@ -52,13 +64,24 @@ function CreateProduct() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!isUriValid) {
-      Swal.fire(
-        "エラー",
-        "有効なURL形式を入力してください (http:// または https://)",
-        "error"
-      );
-      return;
+
+    const emptyFields = Object.entries(product).filter(
+      ([key, value]) => value === "" || value.length === 0
+    );
+
+    if (emptyFields.length > 0) {
+      const result = await Swal.fire({
+        title: "空欄があります",
+        text: "空欄があるまま保存しますか？",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "はい",
+        cancelButtonText: "いいえ",
+      });
+
+      if (!result.isConfirmed) {
+        return;
+      }
     }
 
     try {
@@ -68,11 +91,10 @@ function CreateProduct() {
       formData.append("category", product.category);
       formData.append("mercari_uri", product.mercari_uri);
       formData.append("description", product.description);
-      formData.append("details", product.details);
-      formData.append("highlights", product.highlights);
       formData.append("status", product.status);
       formData.append("gender", product.gender);
-      formData.append("color", product.color);
+      formData.append("color", JSON.stringify(product.color));
+      formData.append("stock", product.stock);
 
       product.image.forEach((imgObj) => {
         formData.append("image", imgObj.file);
@@ -103,6 +125,15 @@ function CreateProduct() {
     setIsModalOpen(false);
     setCurrentImage(null);
     setCurrentIndex(null);
+  };
+
+  const handleColorToggle = (selectedColor) => {
+    setProduct((prev) => {
+      const colors = prev.color.includes(selectedColor)
+        ? prev.color.filter((color) => color !== selectedColor)
+        : [...prev.color, selectedColor];
+      return { ...prev, color: colors };
+    });
   };
 
   return (
@@ -143,15 +174,8 @@ function CreateProduct() {
                   name="mercari_uri"
                   value={product.mercari_uri}
                   onChange={handleChange}
-                  className={`mt-1 block w-full px-4 py-3 border ${
-                    isUriValid ? "border-gray-300" : "border-red-500"
-                  } rounded-lg shadow-md text-lg focus:border-indigo-500 focus:ring-indigo-500`}
+                  className={`mt-1 block w-full px-4 py-3 border rounded-lg shadow-md text-lg focus:border-indigo-500 focus:ring-indigo-500`}
                 />
-                {!isUriValid && (
-                  <p className="text-red-500 text-sm mt-1">
-                    URLの形式は http:// または https:// で始める必要があります。
-                  </p>
-                )}
               </label>
             </div>
 
@@ -189,6 +213,10 @@ function CreateProduct() {
                 </div>
               </div>
               <h3 className="font-semibold text-lg mt-6">色の選択</h3>
+              <span className="mt-4 block text-gray-600">
+                選択された色:{" "}
+                {product.color.length > 0 ? product.color.join(", ") : "なし"}
+              </span>
               <div className="grid grid-cols-5 gap-2 mt-2">
                 {[
                   { color: "red", bg: "bg-red-500" },
@@ -205,9 +233,9 @@ function CreateProduct() {
                   <button
                     type="button"
                     key={color}
-                    onClick={() => setProduct((prev) => ({ ...prev, color }))}
+                    onClick={() => handleColorToggle(color)}
                     className={`w-8 h-8 rounded-full ${bg} border-2 ${
-                      product.color === color
+                      product.color.includes(color)
                         ? "border-black"
                         : "border-transparent"
                     }`}
@@ -263,7 +291,6 @@ function CreateProduct() {
                   value={product.price}
                   onChange={handleChange}
                   className="mt-1 block w-full px-4 py-3 border-gray-300 rounded-lg shadow-md text-lg focus:border-indigo-500 focus:ring-indigo-500"
-                  required
                 />
               </label>
             </div>
@@ -277,7 +304,6 @@ function CreateProduct() {
                   value={product.category}
                   onChange={handleChange}
                   className="mt-1 block w-full px-4 py-3 border-gray-300 rounded-lg shadow-md text-lg focus:border-indigo-500 focus:ring-indigo-500"
-                  required
                 >
                   <option value="MARNI バッグ">MARNI バッグ</option>
                   <option value="AMI PARIS バッグ">AMI PARIS バッグ</option>
@@ -296,36 +322,51 @@ function CreateProduct() {
             </div>
           </div>
 
-          <div>
-            <h3 className="font-semibold text-lg">追加情報</h3>
-            <label className="block mt-2">
-              <span className="text-gray-700">詳細</span>
-              <textarea
-                name="details"
-                value={product.details}
-                onChange={handleChange}
-                rows="3"
-                className="mt-1 block w-full px-4 py-3 border-gray-300 rounded-lg shadow-md text-lg focus:border-indigo-500 focus:ring-indigo-500"
-                required
-              />
-            </label>
-            <label className="block mt-4">
-              <span className="text-gray-700">ハイライト</span>
-              <textarea
-                name="highlights"
-                value={product.highlights}
-                onChange={handleChange}
-                rows="2"
-                className="mt-1 block w-full px-4 py-3 border-gray-300 rounded-lg shadow-md text-lg focus:border-indigo-500 focus:ring-indigo-500"
-                required
-              />
-            </label>
-            <label className="block mt-4">
+          <div className="flex gap-8 items-center mt-4">
+            <div>
+              <span className="text-gray-700">在庫数</span>
+              <div className="flex items-center mt-2">
+                <button
+                  type="button"
+                  onClick={() =>
+                    handleChange({
+                      target: { name: "stock", value: product.stock - 1 },
+                    })
+                  }
+                  className="px-3 py-2 bg-gray-300 text-gray-800 rounded-l-md"
+                >
+                  -
+                </button>
+                <input
+                  type="number"
+                  name="stock"
+                  value={product.stock}
+                  onChange={handleChange}
+                  className="w-16 text-center border-gray-300 rounded-none"
+                />
+                <button
+                  type="button"
+                  onClick={() =>
+                    handleChange({
+                      target: { name: "stock", value: product.stock + 1 },
+                    })
+                  }
+                  className="px-3 py-2 bg-gray-300 text-gray-800 rounded-r-md"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+            <div>
               <span className="text-gray-700">即購入可</span>
               <div className="flex gap-4 mt-2">
                 {[
-                  { label: "はい", value: "yes" },
-                  { label: "いいえ", value: "no" },
+                  { label: "はい", value: "yes", disabled: product.stock <= 1 },
+                  {
+                    label: "いいえ",
+                    value: "no",
+                    disabled: product.stock <= 1,
+                  },
                 ].map((option) => (
                   <label
                     key={option.value}
@@ -340,6 +381,7 @@ function CreateProduct() {
                       name="status"
                       value={option.value}
                       checked={product.status === option.value}
+                      disabled={option.disabled} // 재고 수에 따라 비활성화
                       onChange={(e) =>
                         setProduct((prev) => ({
                           ...prev,
@@ -348,11 +390,19 @@ function CreateProduct() {
                       }
                       className="hidden"
                     />
-                    <span>{option.label}</span>
+                    <span
+                      className={`${
+                        option.disabled
+                          ? "text-gray-400 cursor-not-allowed"
+                          : ""
+                      }`}
+                    >
+                      {option.label}
+                    </span>
                   </label>
                 ))}
               </div>
-            </label>
+            </div>
           </div>
 
           <button

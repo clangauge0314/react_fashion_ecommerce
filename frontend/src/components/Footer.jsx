@@ -1,47 +1,68 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { FaFacebookF } from "react-icons/fa6";
-import { FaInstagram, FaLinkedinIn, FaTwitter } from "react-icons/fa";
 
 const Footer = () => {
-    const currentYear = new Date().getFullYear();
+  const currentYear = new Date().getFullYear();
   return (
     <footer>
       <div className="max-w-screen-2xl container mx-auto xl:px-28 px-4">
         <div className="mt-20 mb-10 flex flex-col md:flex-row items-start justify-between gap-8">
           <div className="md:w-[400px]">
             <Link to="/">
-              <img src="/logo.svg" alt="" />
+              <img src="" alt="" />
             </Link>
-            <p className="my-8 text-Black/75">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-              eiusmod tempor incididunt ut labore et dolore magna aliqua
-            </p>
-            <div className="flex items-center gap-6">
-              <FaFacebookF className="w-5 h-5 cursor-pointer hover:text-orange-500" />
-              <FaTwitter className="w-5 h-5 cursor-pointer hover:text-orange-500" />
-              <FaLinkedinIn className="w-5 h-5 cursor-pointer hover:text-orange-500" />
-              <FaInstagram className="w-5 h-5 cursor-pointer hover:text-orange-500" />
-            </div>
           </div>
 
           <div className="text-Black">
             <h4 className="font-semibold mb-3">CATALOG</h4>
             <div className="space-y-2">
-              <Link to="/" className="text-sm block hover:text-orange-500">
-                Necklaces
+              <Link
+                to="/category/MARNI バッグ"
+                className="text-sm block hover:text-orange-500"
+              >
+                MARNI バッグ
               </Link>
-              <Link to="/" className="text-sm block hover:text-orange-500">
-                Hoodies
+              <Link
+                to="/category/AMI PARIS バッグ"
+                className="text-sm block hover:text-orange-500"
+              >
+                AMI PARIS バッグ
               </Link>
-              <Link to="/" className="text-sm block hover:text-orange-500">
-                Jewelry Box
+              <Link
+                to="/category/MARC JACOBS バッグ"
+                className="text-sm block hover:text-orange-500"
+              >
+                MARC JACOBS バッグ
               </Link>
-              <Link to="/" className="text-sm block hover:text-orange-500">
-                T-shirt
+              <Link
+                to="/category/Y-3 バッグ"
+                className="text-sm block hover:text-orange-500"
+              >
+                Y-3 バッグ
               </Link>
-              <Link to="/" className="text-sm block hover:text-orange-500">
-                Jacket
+              <Link
+                to="/category/A.P.C. バッグ"
+                className="text-sm block hover:text-orange-500"
+              >
+                A.P.C. バッグ
+              </Link>
+              <Link
+                to="/category/Alexander Wang バッグ"
+                className="text-sm block hover:text-orange-500"
+              >
+                Alexander Wang バッグ
+              </Link>
+              <Link
+                to="/category/その他 ブランドバッグ"
+                className="text-sm block hover:text-orange-500"
+              >
+                その他 ブランドバッグ
+              </Link>
+              <Link
+                to="/category/アパレル"
+                className="text-sm block hover:text-orange-500"
+              >
+                アパレル
               </Link>
             </div>
           </div>
@@ -91,7 +112,9 @@ const Footer = () => {
       </div>
 
       <div className="bg-Black">
-      <p className="text-white text-center items-center py-3">© {currentYear} Coral, Inc.</p>
+        <p className="text-white text-center items-center py-3">
+          © {currentYear} Coral, Inc.
+        </p>
       </div>
     </footer>
   );

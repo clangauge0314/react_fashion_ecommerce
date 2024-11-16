@@ -26,7 +26,11 @@ router.post("/", verifyToken, upload.array("image"), async (req, res) => {
   try {
     const imagePaths = req.files.map((file) => file.path.replace(/\\/g, "/"));
 
-    const newProductData = { ...req.body, image: imagePaths };
+    const newProductData = {
+      ...req.body,
+      image: imagePaths,
+      color: JSON.parse(req.body.color),
+    };
 
     const newProduct = new Product(newProductData);
     const savedProduct = await newProduct.save();
@@ -36,6 +40,7 @@ router.post("/", verifyToken, upload.array("image"), async (req, res) => {
     res.status(400).json({ message: "商品作成に失敗しました", error });
   }
 });
+
 // 모든 상품 조회
 router.get("/", async (req, res) => {
   try {
@@ -46,7 +51,6 @@ router.get("/", async (req, res) => {
   }
 });
 
-// 특정 상품 조회
 router.get("/:id", async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
@@ -60,7 +64,7 @@ router.get("/:id", async (req, res) => {
 
 router.put("/:id", verifyToken, upload.array("image"), async (req, res) => {
   try {
-    const { existingImage, ...updateData } = req.body;
+    const { existingImage, color, stock, ...updateData } = req.body;
 
     const uploadedImagePaths = req.files
       ? req.files.map((file) => file.path.replace(/\\/g, "/"))
@@ -94,10 +98,31 @@ router.put("/:id", verifyToken, upload.array("image"), async (req, res) => {
       }
     });
 
-    product.image = [
-      ...existingImagesArray,
-      ...uploadedImagePaths,
-    ].filter(Boolean);
+    product.image = [...existingImagesArray, ...uploadedImagePaths].filter(
+      Boolean
+    );
+
+    if (color) {
+      if (typeof color === "string") {
+        product.color = color.split(",").map((c) => c.trim());
+      } else if (Array.isArray(color)) {
+        product.color = color;
+      }
+    }
+
+    if (stock !== undefined) {
+      const stockValue = parseInt(stock, 10);
+      if (stockValue < 0) {
+        return res.status(400).json({ message: "在庫数は0以上にしてください" });
+      }
+      product.stock = stockValue;
+
+      if (stockValue <= 1) {
+        product.status = "no";
+      } else if (!updateData.status) {
+        product.status = product.status || "yes";
+      }
+    }
 
     Object.keys(updateData).forEach((key) => {
       product[key] = updateData[key];
@@ -111,7 +136,6 @@ router.put("/:id", verifyToken, upload.array("image"), async (req, res) => {
     res.status(500).json({ message: "商品を更新できませんでした", error });
   }
 });
-
 
 router.delete("/:id", verifyToken, async (req, res) => {
   try {

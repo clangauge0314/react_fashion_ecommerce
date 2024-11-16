@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import ReactPaginate from "react-paginate";
+import axios from "axios";
 
 const CategoryProducts = () => {
   const { category } = useParams();
@@ -13,33 +14,35 @@ const CategoryProducts = () => {
   const [maxPrice, setMaxPrice] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [sortOption, setSortOption] = useState("default");
-  const [selectedColor, setSelectedColor] = useState("");
+  const [selectedColors, setSelectedColors] = useState([]);
+  const [selectedStatus, setSelectedStatus] = useState("");
+  const [selectedGender, setSelectedGender] = useState("");
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    window.scrollTo(0, 0);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("/products.json", {
-          headers: {
-            Accept: "application/json",
-          },
-        });
-        const data = await response.json();
+        const response = await axios.get(
+          "http://183.107.128.217:3000/api/products"
+        );
+        const data = response.data;
         setProducts(data);
+
         if (category === "all") {
           setFilteredItems(data);
         } else {
           setFilteredItems(data.filter((item) => item.category === category));
         }
       } catch (error) {
-        console.log("Error fetching data", error);
+        console.error("Error fetching data:", error);
       }
     };
+
     fetchData();
   }, [category]);
 
@@ -80,57 +83,92 @@ const CategoryProducts = () => {
     navigate(`/category/${selectedCategory}`);
   };
 
+  const handleSearch = () => {
+    const filtered = products.filter((item) => {
+      const matchCategory = category === "all" || item.category === category;
+      const matchSearch = searchTerm
+        ? item.name.toLowerCase().includes(searchTerm.toLowerCase())
+        : true;
+      const matchPrice =
+        (!minPrice || Number(item.price) >= Number(minPrice)) &&
+        (!maxPrice || Number(item.price) <= Number(maxPrice));
+      const matchStatus = !selectedStatus || item.status === selectedStatus;
+      const matchGender = !selectedGender || item.gender === selectedGender;
+      const matchColor =
+        selectedColors.length === 0 ||
+        selectedColors.some((color) => item.color.includes(color));
+
+      return (
+        matchCategory &&
+        matchSearch &&
+        matchPrice &&
+        matchStatus &&
+        matchGender &&
+        matchColor
+      );
+    });
+
+    setFilteredItems(filtered);
+    setCurrentPage(0);
+    setIsModalOpen(false);
+  };
+
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
   };
 
   const handlePriceChange = (event) => {
     const { name, value } = event.target;
-    if (name === "minPrice") setMinPrice(value);
-    if (name === "maxPrice") setMaxPrice(value);
-  };
-
-  const handleSearch = () => {
-    const filtered = products.filter((item) => {
-      const matchCategory = category === "all" || item.category === category;
-      const matchSearch = item.title
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase());
-      const matchPrice =
-        (!minPrice || item.price >= minPrice) &&
-        (!maxPrice || item.price <= maxPrice);
-      return matchCategory && matchSearch && matchPrice;
-    });
-    setFilteredItems(filtered);
-    setCurrentPage(0);
-    setIsModalOpen(false);
-  };
-
-  const handleResetFilters = () => {
-    setSearchTerm("");
-    setMinPrice("");
-    setMaxPrice("");
-    setItemsPerPage(16);
-    setCurrentPage(0);
-    if (category === "all") {
-      setFilteredItems(products);
-    } else {
-      setFilteredItems(products.filter((item) => item.category === category));
-    }
-    setIsModalOpen(false);
-  };
-
-  const toggleModal = () => {
-    setIsModalOpen(!isModalOpen);
+    if (name === "minPrice") setMinPrice(Number(value) || "");
+    if (name === "maxPrice") setMaxPrice(Number(value) || "");
   };
 
   const handleSortChange = (event) => {
     setSortOption(event.target.value);
   };
 
+  const handleColorChange = (color) => {
+    setSelectedColors((prev) =>
+      prev.includes(color) ? prev.filter((c) => c !== color) : [...prev, color]
+    );
+  };
+
+  const handleStatusChange = (event) => {
+    setSelectedStatus(event.target.value);
+  };
+
+  const handleGenderChange = (event) => {
+    setSelectedGender(event.target.value);
+  };
+
+  const handleResetFilters = () => {
+    setSearchTerm("");
+    setMinPrice("");
+    setMaxPrice("");
+    setSelectedColors([]);
+    setSelectedStatus("");
+    setSelectedGender("");
+    setItemsPerPage(16);
+    setCurrentPage(0);
+    setSortOption("default");
+
+    if (category === "all") {
+      setFilteredItems(products);
+    } else {
+      setFilteredItems(products.filter((item) => item.category === category));
+    }
+  };
+
+  const toggleModal = () => {
+    setIsModalOpen(!isModalOpen);
+  };
+
   return (
     <div className="flex pt-20 space-x-6 px-4 md:px-10 lg:px-20 xl:px-80 overflow-auto">
-      <div className="hidden md:block w-1/4 space-y-4 sticky top-20">
+      <div
+        className="hidden md:block w-1/4 space-y-4 sticky top-20"
+        style={{ minWidth: "280px" }}
+      >
         <h2 className="text-xl font-semibold mb-2">絞込み検索</h2>
 
         <div>
@@ -141,14 +179,14 @@ const CategoryProducts = () => {
             className="w-full p-2 border rounded"
           >
             <option value="all">全ての商品</option>
-            <option value="category_1">Category 1</option>
-            <option value="category_2">Category 2</option>
-            <option value="category_3">Category 3</option>
-            <option value="category_4">Category 4</option>
-            <option value="category_5">Category 5</option>
-            <option value="category_6">Category 6</option>
-            <option value="category_7">Category 7</option>
-            <option value="category_8">Category 8</option>
+            <option value="MARNI バッグ">MARNI バッグ</option>
+            <option value="AMI PARIS バッグ">AMI PARIS バッグ</option>
+            <option value="MARC JACOBS バッグ">MARC JACOBS バッグ</option>
+            <option value="Y-3 バッグ">Y-3 バッグ</option>
+            <option value="A.P.C. バッグ">A.P.C. バッグ</option>
+            <option value="Alexander Wang バッグ">Alexander Wang バッグ</option>
+            <option value="その他 ブランドバッグ">その他 ブランドバッグ</option>
+            <option value="アパレル">アパレル</option>
           </select>
         </div>
 
@@ -186,20 +224,28 @@ const CategoryProducts = () => {
         </div>
 
         <div className="mb-4">
-          <label className="block font-semibold mb-2">カラー:</label>
+          <label className="block font-semibold mb-2">
+            カラー:{" "}
+            <span className="ml-2 text-gray-600">
+              {selectedColors.length > 0 ? selectedColors.join(", ") : "未選択"}
+            </span>
+          </label>
+
           <div className="grid grid-cols-5 gap-2">
             <button
-              onClick={() => setSelectedColor("red")}
+              onClick={() => handleColorChange("red")}
               className={`w-8 h-8 rounded-full bg-red-500 border-2 ${
-                selectedColor === "red" ? "border-black" : "border-transparent"
+                selectedColors.includes("red")
+                  ? "border-black"
+                  : "border-transparent"
               }`}
               aria-label="赤"
             ></button>
 
             <button
-              onClick={() => setSelectedColor("orange")}
+              onClick={() => handleColorChange("orange")}
               className={`w-8 h-8 rounded-full bg-orange-500 border-2 ${
-                selectedColor === "orange"
+                selectedColors.includes("orange")
                   ? "border-black"
                   : "border-transparent"
               }`}
@@ -207,9 +253,9 @@ const CategoryProducts = () => {
             ></button>
 
             <button
-              onClick={() => setSelectedColor("yellow")}
+              onClick={() => handleColorChange("yellow")}
               className={`w-8 h-8 rounded-full bg-yellow-500 border-2 ${
-                selectedColor === "yellow"
+                selectedColors.includes("yellow")
                   ? "border-black"
                   : "border-transparent"
               }`}
@@ -217,9 +263,9 @@ const CategoryProducts = () => {
             ></button>
 
             <button
-              onClick={() => setSelectedColor("green")}
+              onClick={() => handleColorChange("green")}
               className={`w-8 h-8 rounded-full bg-green-500 border-2 ${
-                selectedColor === "green"
+                selectedColors.includes("green")
                   ? "border-black"
                   : "border-transparent"
               }`}
@@ -227,33 +273,39 @@ const CategoryProducts = () => {
             ></button>
 
             <button
-              onClick={() => setSelectedColor("blue")}
+              onClick={() => handleColorChange("blue")}
               className={`w-8 h-8 rounded-full bg-blue-500 border-2 ${
-                selectedColor === "blue" ? "border-black" : "border-transparent"
+                selectedColors.includes("blue")
+                  ? "border-black"
+                  : "border-transparent"
               }`}
               aria-label="青"
             ></button>
 
             <button
-              onClick={() => setSelectedColor("navy")}
+              onClick={() => handleColorChange("navy")}
               className={`w-8 h-8 rounded-full bg-blue-900 border-2 ${
-                selectedColor === "navy" ? "border-black" : "border-transparent"
+                selectedColors.includes("navy")
+                  ? "border-black"
+                  : "border-transparent"
               }`}
               aria-label="紺"
             ></button>
 
             <button
-              onClick={() => setSelectedColor("pink")}
+              onClick={() => handleColorChange("pink")}
               className={`w-8 h-8 rounded-full bg-pink-500 border-2 ${
-                selectedColor === "pink" ? "border-black" : "border-transparent"
+                selectedColors.includes("pink")
+                  ? "border-black"
+                  : "border-transparent"
               }`}
               aria-label="ピンク"
             ></button>
 
             <button
-              onClick={() => setSelectedColor("purple")}
+              onClick={() => handleColorChange("purple")}
               className={`w-8 h-8 rounded-full bg-purple-500 border-2 ${
-                selectedColor === "purple"
+                selectedColors.includes("purple")
                   ? "border-black"
                   : "border-transparent"
               }`}
@@ -261,17 +313,19 @@ const CategoryProducts = () => {
             ></button>
 
             <button
-              onClick={() => setSelectedColor("white")}
+              onClick={() => handleColorChange("white")}
               className={`w-8 h-8 rounded-full bg-white border-2 ${
-                selectedColor === "white" ? "border-black" : "border-gray-300"
+                selectedColors.includes("white")
+                  ? "border-black"
+                  : "border-gray-300"
               }`}
               aria-label="白"
             ></button>
 
             <button
-              onClick={() => setSelectedColor("black")}
+              onClick={() => handleColorChange("black")}
               className={`w-8 h-8 rounded-full bg-black border-2 ${
-                selectedColor === "black"
+                selectedColors.includes("black")
                   ? "border-black"
                   : "border-transparent"
               }`}
@@ -282,7 +336,10 @@ const CategoryProducts = () => {
 
         <div>
           <label className="block font-semibold mb-2">即購入可:</label>
-          <select className="w-full p-2 border rounded">
+          <select
+            onChange={handleStatusChange}
+            className="w-full p-2 border rounded"
+          >
             <option value="">選択してください</option>
             <option value="yes">はい</option>
             <option value="no">いいえ</option>
@@ -293,17 +350,34 @@ const CategoryProducts = () => {
           <label className="block font-semibold mb-2">性別:</label>
           <div className="flex space-x-4">
             <label className="flex items-center">
-              <input type="radio" name="gender" value="mens" className="mr-2" />
-              メンズ
+              <input
+                type="radio"
+                name="gender"
+                value="male"
+                onChange={handleGenderChange}
+                className="mr-2"
+              />
+              男性
             </label>
             <label className="flex items-center">
               <input
                 type="radio"
                 name="gender"
-                value="ladies"
+                value="female"
+                onChange={handleGenderChange}
                 className="mr-2"
               />
-              レディース
+              女性
+            </label>
+            <label className="flex items-center">
+              <input
+                type="radio"
+                name="gender"
+                value="unisex"
+                onChange={handleGenderChange}
+                className="mr-2"
+              />
+              男女共用
             </label>
           </div>
         </div>
@@ -339,14 +413,18 @@ const CategoryProducts = () => {
                 className="w-full p-2 border rounded"
               >
                 <option value="all">全ての商品</option>
-                <option value="category_1">Category 1</option>
-                <option value="category_2">Category 2</option>
-                <option value="category_3">Category 3</option>
-                <option value="category_4">Category 4</option>
-                <option value="category_5">Category 5</option>
-                <option value="category_6">Category 6</option>
-                <option value="category_7">Category 7</option>
-                <option value="category_8">Category 8</option>
+                <option value="MARNI バッグ">MARNI バッグ</option>
+                <option value="AMI PARIS バッグ">AMI PARIS バッグ</option>
+                <option value="MARC JACOBS バッグ">MARC JACOBS バッグ</option>
+                <option value="Y-3 バッグ">Y-3 バッグ</option>
+                <option value="A.P.C. バッグ">A.P.C. バッグ</option>
+                <option value="Alexander Wang バッグ">
+                  Alexander Wang バッグ
+                </option>
+                <option value="その他 ブランドバッグ">
+                  その他 ブランドバッグ
+                </option>
+                <option value="アパレル">アパレル</option>
               </select>
             </div>
 
@@ -384,12 +462,19 @@ const CategoryProducts = () => {
             </div>
 
             <div className="mb-4">
-              <label className="block font-semibold mb-2">カラー:</label>
+              <label className="block font-semibold mb-2">
+                カラー:{" "}
+                <span className="ml-2 text-gray-600">
+                  {selectedColors.length > 0
+                    ? selectedColors.join(", ")
+                    : "未選択"}
+                </span>
+              </label>
               <div className="grid grid-cols-5 gap-2 sm:flex sm:space-x-3">
                 <button
-                  onClick={() => setSelectedColor("red")}
+                  onClick={() => handleColorChange("red")}
                   className={`w-8 h-8 rounded-full bg-red-500 border-2 ${
-                    selectedColor === "red"
+                    selectedColors.includes("red")
                       ? "border-black"
                       : "border-transparent"
                   }`}
@@ -397,9 +482,9 @@ const CategoryProducts = () => {
                 ></button>
 
                 <button
-                  onClick={() => setSelectedColor("orange")}
+                  onClick={() => handleColorChange("orange")}
                   className={`w-8 h-8 rounded-full bg-orange-500 border-2 ${
-                    selectedColor === "orange"
+                    selectedColors.includes("orange")
                       ? "border-black"
                       : "border-transparent"
                   }`}
@@ -407,9 +492,9 @@ const CategoryProducts = () => {
                 ></button>
 
                 <button
-                  onClick={() => setSelectedColor("yellow")}
+                  onClick={() => handleColorChange("yellow")}
                   className={`w-8 h-8 rounded-full bg-yellow-500 border-2 ${
-                    selectedColor === "yellow"
+                    selectedColors.includes("yellow")
                       ? "border-black"
                       : "border-transparent"
                   }`}
@@ -417,9 +502,9 @@ const CategoryProducts = () => {
                 ></button>
 
                 <button
-                  onClick={() => setSelectedColor("green")}
+                  onClick={() => handleColorChange("green")}
                   className={`w-8 h-8 rounded-full bg-green-500 border-2 ${
-                    selectedColor === "green"
+                    selectedColors.includes("green")
                       ? "border-black"
                       : "border-transparent"
                   }`}
@@ -427,9 +512,9 @@ const CategoryProducts = () => {
                 ></button>
 
                 <button
-                  onClick={() => setSelectedColor("blue")}
+                  onClick={() => handleColorChange("blue")}
                   className={`w-8 h-8 rounded-full bg-blue-500 border-2 ${
-                    selectedColor === "blue"
+                    selectedColors.includes("blue")
                       ? "border-black"
                       : "border-transparent"
                   }`}
@@ -437,9 +522,9 @@ const CategoryProducts = () => {
                 ></button>
 
                 <button
-                  onClick={() => setSelectedColor("navy")}
+                  onClick={() => handleColorChange("navy")}
                   className={`w-8 h-8 rounded-full bg-blue-900 border-2 ${
-                    selectedColor === "navy"
+                    selectedColors.includes("navy")
                       ? "border-black"
                       : "border-transparent"
                   }`}
@@ -447,9 +532,9 @@ const CategoryProducts = () => {
                 ></button>
 
                 <button
-                  onClick={() => setSelectedColor("pink")}
+                  onClick={() => handleColorChange("pink")}
                   className={`w-8 h-8 rounded-full bg-pink-500 border-2 ${
-                    selectedColor === "pink"
+                    selectedColors.includes("pink")
                       ? "border-black"
                       : "border-transparent"
                   }`}
@@ -457,9 +542,9 @@ const CategoryProducts = () => {
                 ></button>
 
                 <button
-                  onClick={() => setSelectedColor("purple")}
+                  onClick={() => handleColorChange("purple")}
                   className={`w-8 h-8 rounded-full bg-purple-500 border-2 ${
-                    selectedColor === "purple"
+                    selectedColors.includes("purple")
                       ? "border-black"
                       : "border-transparent"
                   }`}
@@ -467,9 +552,9 @@ const CategoryProducts = () => {
                 ></button>
 
                 <button
-                  onClick={() => setSelectedColor("white")}
+                  onClick={() => handleColorChange("white")}
                   className={`w-8 h-8 rounded-full bg-white border-2 ${
-                    selectedColor === "white"
+                    selectedColors.includes("white")
                       ? "border-black"
                       : "border-gray-300"
                   }`}
@@ -477,9 +562,9 @@ const CategoryProducts = () => {
                 ></button>
 
                 <button
-                  onClick={() => setSelectedColor("black")}
+                  onClick={() => handleColorChange("black")}
                   className={`w-8 h-8 rounded-full bg-black border-2 ${
-                    selectedColor === "black"
+                    selectedColors.includes("black")
                       ? "border-black"
                       : "border-transparent"
                   }`}
@@ -490,7 +575,10 @@ const CategoryProducts = () => {
 
             <div className="mb-4">
               <label className="block font-semibold mb-2">即購入可:</label>
-              <select className="w-full p-2 border rounded">
+              <select
+                onChange={handleStatusChange}
+                className="w-full p-2 border rounded"
+              >
                 <option value="">選択してください</option>
                 <option value="yes">はい</option>
                 <option value="no">いいえ</option>
@@ -503,19 +591,31 @@ const CategoryProducts = () => {
                   <input
                     type="radio"
                     name="gender"
-                    value="mens"
+                    value="male"
+                    onChange={handleGenderChange}
                     className="mr-2"
                   />
-                  メンズ
+                  男性
                 </label>
                 <label className="flex items-center">
                   <input
                     type="radio"
                     name="gender"
-                    value="ladies"
+                    value="female"
+                    onChange={handleGenderChange}
                     className="mr-2"
                   />
-                  レディース
+                  女性
+                </label>
+                <label className="flex items-center">
+                  <input
+                    type="radio"
+                    name="gender"
+                    value="unisex"
+                    onChange={handleGenderChange}
+                    className="mr-2"
+                  />
+                  男女共用
                 </label>
               </div>
             </div>
@@ -607,23 +707,25 @@ const CategoryProducts = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3 gap-6 w-full">
           {filteredItems.length === 0 ? (
             <p className="text-center text-gray-500 col-span-full">
               検索された商品がありません。
             </p>
           ) : (
             currentItems.map((product) => (
-              <Link to={`/product/${product.id}`} key={product.id}>
+              <Link to={`/product/${product._id}`} key={product._id}>
                 <div className="border border-gray-200 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300">
                   <img
-                    src={product.image}
-                    alt={product.title}
+                    src={`http://183.107.128.217:3000/${product.image?.[0]}`}
+                    alt={product.name}
                     className="w-full h-48 object-cover"
                   />
                   <div className="p-4">
-                    <h2 className="text-lg font-medium text-gray-900 truncate">
-                      {product.title}
+                    <h2 className="text-lg font-medium text-gray-900">
+                      {product.name.length > 20
+                        ? `${product.name.slice(0, 20)}...`
+                        : product.name}
                     </h2>
                     <p className="text-xl font-semibold text-red-500 mt-2">
                       ¥{product.price.toLocaleString()}

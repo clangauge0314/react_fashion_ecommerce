@@ -11,7 +11,7 @@ export default {
         black: "#000000",
       },
       fontFamily: {
-        primary: ["Noto Sans JP", 'sans-serif'],
+        sans: ["Noto Sans JP", 'sans-serif'],
       },
       fontSize: {
         'xs': '.75rem',

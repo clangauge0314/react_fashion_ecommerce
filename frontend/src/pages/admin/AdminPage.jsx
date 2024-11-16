@@ -43,6 +43,7 @@ function AdminPage() {
           <div>
             <input
               type="email"
+              name="email"
               placeholder="メール"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -53,6 +54,7 @@ function AdminPage() {
           <div>
             <input
               type="password"
+              name="password"
               placeholder="パスワード"
               value={password}
               onChange={(e) => setPassword(e.target.value)}

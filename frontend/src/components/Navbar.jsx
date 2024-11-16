@@ -17,12 +17,14 @@ const Navbar = () => {
   };
 
   const navItems = [
-    { title: "Category 1", path: "/" },
-    { title: "Category 2", path: "/" },
-    { title: "Category 3", path: "/" },
-    { title: "Category 4", path: "/" },
-    { title: "Category 5", path: "/" },
-    { title: "Category 6", path: "/" },
+    { title: "MARNI バッグ", path: "/category/MARNI バッグ" },
+    { title: "AMI PARIS バッグ", path: "/category/AMI PARIS バッグ" },
+    { title: "MARC JACOBS バッグ", path: "/category/MARC JACOBS バッグ" },
+    { title: "Y-3 バッグ", path: "/category/Y-3 バッグ" },
+    { title: "A.P.C. バッグ", path: "/category/A.P.C. バッグ" },
+    { title: "Alexander Wang バッグ", path: "/category/Alexander Wang バッグ" },
+    { title: "その他 ブランドバッグ", path: "/category/その他 ブランドバッグ" },
+    { title: "アパレル", path: "/category/アパレル" },
   ];
 
   return (
