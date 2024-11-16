@@ -67,11 +67,18 @@ router.put("/:id", verifyToken, upload.array("image"), async (req, res) => {
       : [];
 
     const product = await Product.findById(req.params.id);
-    if (!product)
+    if (!product) {
       return res.status(404).json({ message: "商品が見つかりません" });
+    }
+
+    const existingImagesArray = Array.isArray(existingImage)
+      ? existingImage
+      : existingImage
+      ? [existingImage]
+      : [];
 
     const imagesToDelete = product.image.filter(
-      (img) => !existingImage.includes(img)
+      (img) => !existingImagesArray.includes(img)
     );
 
     imagesToDelete.forEach((imagePath) => {
@@ -88,7 +95,7 @@ router.put("/:id", verifyToken, upload.array("image"), async (req, res) => {
     });
 
     product.image = [
-      ...(Array.isArray(existingImage) ? existingImage : [existingImage]),
+      ...existingImagesArray,
       ...uploadedImagePaths,
     ].filter(Boolean);
 
@@ -104,6 +111,7 @@ router.put("/:id", verifyToken, upload.array("image"), async (req, res) => {
     res.status(500).json({ message: "商品を更新できませんでした", error });
   }
 });
+
 
 router.delete("/:id", verifyToken, async (req, res) => {
   try {
