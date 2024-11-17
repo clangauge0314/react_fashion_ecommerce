@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import logo from "../assets/logo-footer.jpg";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -9,12 +10,12 @@ const Footer = () => {
         <div className="mt-20 mb-10 flex flex-col md:flex-row items-start justify-between gap-8">
           <div className="md:w-[400px]">
             <Link to="/">
-              <img src="" alt="" />
+              <img src={logo} alt="" />
             </Link>
           </div>
 
           <div className="text-Black">
-            <h4 className="font-semibold mb-3">CATALOG</h4>
+            <h4 className="font-semibold mb-3">CATEGORY</h4>
             <div className="space-y-2">
               <Link
                 to="/category/MARNI バッグ"
@@ -71,40 +72,13 @@ const Footer = () => {
             <h4 className="font-semibold mb-3">CUSTOMER SERVICES</h4>
             <div className="space-y-2">
               <Link to="/" className="text-sm block hover:text-orange-500">
-                Contact Us
+                お問い合わせ
               </Link>
               <Link to="/" className="text-sm block hover:text-orange-500">
-                Track Your Order
+                サービスについて
               </Link>
               <Link to="/" className="text-sm block hover:text-orange-500">
-                Product Care & Repair
-              </Link>
-              <Link to="/" className="text-sm block hover:text-orange-500">
-                Book an Appointment
-              </Link>
-              <Link to="/" className="text-sm block hover:text-orange-500">
-                Shipping & Returns
-              </Link>
-            </div>
-          </div>
-
-          <div className="text-Black">
-            <h4 className="font-semibold mb-3">ABOUT US</h4>
-            <div className="space-y-2">
-              <Link to="/" className="text-sm block hover:text-orange-500">
-                Our Producers
-              </Link>
-              <Link to="/" className="text-sm block hover:text-orange-500">
-                Sitemap
-              </Link>
-              <Link to="/" className="text-sm block hover:text-orange-500">
-                FAQ
-              </Link>
-              <Link to="/" className="text-sm block hover:text-orange-500">
-                About Us
-              </Link>
-              <Link to="/" className="text-sm block hover:text-orange-500">
-                Terms & Conditions
+                よくあるご質問
               </Link>
             </div>
           </div>
@@ -113,7 +87,7 @@ const Footer = () => {
 
       <div className="bg-Black">
         <p className="text-white text-center items-center py-3">
-          © {currentYear} Coral, Inc.
+          © {currentYear} Mami Select
         </p>
       </div>
     </footer>

@@ -183,7 +183,7 @@ const Category = () => {
                   className="flex items-center gap-2 bg-blue-500 text-white rounded-lg px-4 py-2 hover:bg-blue-600 transition-colors duration-300 text-sm"
                   onClick={() => navigate(`/category/${item.categoryName}`)}
                 >
-                  カテゴリーを見る
+                  見る
                   <FaArrowRight />
                 </Button>
               </div>
