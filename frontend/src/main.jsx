@@ -1,4 +1,4 @@
-import { StrictMode } from "react";
+import { StrictMode, Suspense, lazy } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import App from "./App.jsx";
@@ -7,14 +7,19 @@ import {
   RouterProvider,
   redirect,
 } from "react-router-dom";
-
-import Home from "./pages/home/Home.jsx";
-import SingleProduct from "./pages/home/SingleProduct.jsx";
-import CategoryProducts from "./pages/home/CategoryProducts.jsx";
-import AdminPage from "./pages/admin/AdminPage.jsx";
-import AdminDashboard from "./pages/admin/AdminDashboard.jsx";
-import CreateProduct from "./pages/admin/CreateProduct.jsx";
 import axios from "axios";
+
+// Lazy Loading으로 페이지 로드
+const Home = lazy(() => import("./pages/home/Home.jsx"));
+const SingleProduct = lazy(() => import("./pages/home/SingleProduct.jsx"));
+const CategoryProducts = lazy(() =>
+  import("./pages/home/CategoryProducts.jsx")
+);
+const AdminPage = lazy(() => import("./pages/admin/AdminPage.jsx"));
+const AdminDashboard = lazy(() =>
+  import("./pages/admin/AdminDashboard.jsx")
+);
+const CreateProduct = lazy(() => import("./pages/admin/CreateProduct.jsx"));
 
 const validateToken = async () => {
   const token = localStorage.getItem("token");
@@ -52,30 +57,54 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/",
-        element: <Home />,
+        element: (
+          <Suspense fallback={<div>Loading...</div>}>
+            <Home />
+          </Suspense>
+        ),
       },
       {
         path: "/product/:id",
-        element: <SingleProduct />,
+        element: (
+          <Suspense fallback={<div>Loading...</div>}>
+            <SingleProduct />
+          </Suspense>
+        ),
       },
       {
         path: "/category/:category",
-        element: <CategoryProducts />,
+        element: (
+          <Suspense fallback={<div>Loading...</div>}>
+            <CategoryProducts />
+          </Suspense>
+        ),
       },
     ],
   },
   {
     path: "/admin",
-    element: <AdminPage />,
+    element: (
+      <Suspense fallback={<div>Loading...</div>}>
+        <AdminPage />
+      </Suspense>
+    ),
   },
   {
     path: "/admin/dashboard",
-    element: <AdminDashboard />,
+    element: (
+      <Suspense fallback={<div>Loading...</div>}>
+        <AdminDashboard />
+      </Suspense>
+    ),
     loader: validateToken, // 유효성 검증
   },
   {
     path: "/admin/create",
-    element: <CreateProduct />,
+    element: (
+      <Suspense fallback={<div>Loading...</div>}>
+        <CreateProduct />
+      </Suspense>
+    ),
     loader: validateToken, // 유효성 검증
   },
 ]);

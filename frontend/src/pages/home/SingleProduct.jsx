@@ -8,7 +8,6 @@ const SingleProduct = () => {
   const [product, setProduct] = useState(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
-  const [calculatedPrice, setCalculatedPrice] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 

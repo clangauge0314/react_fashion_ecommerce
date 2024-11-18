@@ -3,6 +3,7 @@ const router = express.Router();
 const fs = require("fs");
 const path = require("path");
 const multer = require("multer");
+const sharp = require("sharp");
 const Product = require("../models/Product");
 const verifyToken = require("../middleware/verifyToken");
 
@@ -15,20 +16,45 @@ const storage = multer.diskStorage({
       ? req.body.name.replace(/[^a-zA-Z0-9]/g, "_")
       : "unknown_product";
     const fileExtension = path.extname(file.originalname);
-    const baseName = path.basename(file.originalname, fileExtension);
     cb(null, `${productName}-${Date.now()}${fileExtension}`);
   },
 });
 
-const upload = multer({ storage });
+const upload = multer({
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+    if (!allowedTypes.includes(file.mimetype)) {
+      return cb(new Error("지원되지 않는 파일 형식입니다"));
+    }
+    cb(null, true);
+  },
+});
 
 router.post("/", verifyToken, upload.array("image"), async (req, res) => {
   try {
-    const imagePaths = req.files.map((file) => file.path.replace(/\\/g, "/"));
+    const imagePaths = [];
+    const compressedImagePaths = [];
+
+    req.files.forEach((file) => {
+      imagePaths.push(file.path.replace(/\\/g, "/"));
+    });
+
+    for (const file of req.files) {
+      const compressedPath = `uploads/compressed-${file.filename}`;
+      await sharp(file.path)
+        .toFormat("webp") 
+        .webp({ quality: 80 })
+        .toFile(compressedPath);
+
+      compressedImagePaths.push(compressedPath.replace(/\\/g, "/"));
+    }
 
     const newProductData = {
       ...req.body,
-      image: imagePaths,
+      image: imagePaths, 
+      compressedImage: compressedImagePaths, 
       color: JSON.parse(req.body.color),
     };
 
