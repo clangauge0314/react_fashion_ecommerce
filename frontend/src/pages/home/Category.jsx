@@ -156,7 +156,7 @@ const Category = () => {
         </Swiper>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 md:hidden mt-8">
+      <div className="grid grid-cols-1 gap-4 md:hidden mt-8">
         {categoryData.map((item) => (
           <Card
             key={item.id}

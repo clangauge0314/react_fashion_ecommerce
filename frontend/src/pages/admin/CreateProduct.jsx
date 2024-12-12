@@ -101,7 +101,7 @@ function CreateProduct() {
       });
 
       const token = localStorage.getItem("token");
-      await axios.post("http://183.107.128.217:3000/api/products", formData, {
+      await axios.post(`${import.meta.env.VITE_NODEJS_API_URL}/api/products`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",

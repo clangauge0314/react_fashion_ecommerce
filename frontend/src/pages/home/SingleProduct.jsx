@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { FaArrowAltCircleRight, FaStar } from "react-icons/fa";
+import { FaStar } from "react-icons/fa";
 import { useParams } from "react-router-dom";
 import axios from "axios";
+import Swal from "sweetalert2";
 
 const SingleProduct = () => {
   const { id } = useParams();
@@ -10,6 +11,12 @@ const SingleProduct = () => {
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [orderForm, setOrderForm] = useState({
+    customerName: "",
+    customerEmail: "",
+    quantity: 1
+  });
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -19,7 +26,7 @@ const SingleProduct = () => {
     const fetchProduct = async () => {
       try {
         const response = await axios.get(
-          `http://183.107.128.217:3000/api/products/${id}`
+          `${import.meta.env.VITE_NODEJS_API_URL}/api/products/${id}`
         );
         setProduct(response.data);
         setLoading(false);
@@ -38,11 +45,115 @@ const SingleProduct = () => {
     }
   }, [product?.stock]);
 
-  useEffect(() => {
-    if (product) {
-      setCalculatedPrice(quantity * product.price);
+  const handleOrderSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const ipResponse = await axios.get('https://api.ipify.org?format=json');
+      const ipAddress = ipResponse.data.ip;
+
+      const response = await axios.post(
+        `${import.meta.env.VITE_NODEJS_API_URL}/api/order`,
+        {
+          ...orderForm,
+          productId: id,
+          ipAddress: ipAddress
+        }
+      );
+
+      setIsModalOpen(false);
+      setOrderForm({ customerName: "", customerEmail: "", quantity: 1 });
+      
+      Swal.fire({
+        title: '注文完了',
+        text: '商品の取り寄せリクエストを受け付けました。',
+        icon: 'success',
+        confirmButtonText: '確認'
+      });
+    } catch (error) {
+      let errorMessage = 'エラーが発生しました。';
+      
+      if (error.response) {
+        errorMessage = error.response.data.message || errorMessage;
+      } else if (error.request) {
+        errorMessage = 'サーバーからの応答がありません。';
+      } else {
+        errorMessage = error.message;
+      }
+
+      Swal.fire({
+        title: 'エラー',
+        text: errorMessage,
+        icon: 'error',
+        confirmButtonText: '確認'
+      });
     }
-  }, [quantity, product]);
+  };
+
+  const OrderModal = () => (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white p-8 rounded-lg w-full max-w-md">
+        <h2 className="text-2xl font-bold mb-4">商品取り寄せリクエスト</h2>
+        <form onSubmit={handleOrderSubmit}>
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-bold mb-2">
+              お名前 *
+            </label>
+            <input
+              type="text"
+              required
+              value={orderForm.customerName}
+              onChange={(e) => setOrderForm({...orderForm, customerName: e.target.value})}
+              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
+              placeholder="山田 太郎"
+            />
+          </div>
+          
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-bold mb-2">
+              メールアドレス *
+            </label>
+            <input
+              type="email"
+              required
+              value={orderForm.customerEmail}
+              onChange={(e) => setOrderForm({...orderForm, customerEmail: e.target.value})}
+              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
+              placeholder="example@email.com"
+            />
+          </div>
+          
+          <div className="mb-6">
+            <label className="block text-gray-700 text-sm font-bold mb-2">
+              数量
+            </label>
+            <input
+              type="number"
+              min="1"
+              value={orderForm.quantity}
+              onChange={(e) => setOrderForm({...orderForm, quantity: parseInt(e.target.value)})}
+              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
+            />
+          </div>
+
+          <div className="flex justify-end space-x-4">
+            <button
+              type="button"
+              onClick={() => setIsModalOpen(false)}
+              className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-100"
+            >
+              キャンセル
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+            >
+              送信
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
 
   if (loading) {
     return <div>商品を読み込み中...</div>;
@@ -68,7 +179,7 @@ const SingleProduct = () => {
               <div className="flex flex-col items-center gap-4">
                 <div className="w-[500px] h-[500px] border border-gray-300 rounded-md flex items-center justify-center bg-white">
                   <img
-                    src={`http://183.107.128.217:3000/${product.image?.[selectedImageIndex]}`}
+                    src={`${import.meta.env.VITE_NODEJS_API_URL}/${product.image?.[selectedImageIndex]}`}
                     alt="Product Image"
                     className="max-w-full max-h-full object-contain"
                   />
@@ -86,7 +197,7 @@ const SingleProduct = () => {
                       }`}
                     >
                       <img
-                        src={`http://183.107.128.217:3000/${img}`}
+                        src={`${import.meta.env.VITE_NODEJS_API_URL}/${img}`}
                         alt={`Thumbnail ${index + 1}`}
                         className="max-w-full max-h-full object-contain"
                       />
@@ -137,7 +248,7 @@ const SingleProduct = () => {
                           ? "bg-blue-500 text-white hover:bg-blue-600"
                           : "bg-blue-500 text-white hover:bg-blue-600"
                       }`}
-                      onClick={() => a()}
+                      onClick={() => setIsModalOpen(true)}
                     >
                       この商品を取り寄せ
                     </button>
@@ -161,6 +272,8 @@ const SingleProduct = () => {
           </p>
         </div>
       </div>
+
+      {isModalOpen && <OrderModal />}
     </div>
   );
 };

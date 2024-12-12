@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import logo from "../assets/logo.jpg";
-import { IoMdSearch } from "react-icons/io";
 import { IoMdNotificationsOutline } from "react-icons/io";
 import { HiMenuAlt3 } from "react-icons/hi";
 
@@ -12,18 +11,18 @@ const MenuLinks = [
   },
   {
     id: 2,
-    name: "ショップ",
-    link: "/category/all",
+    name: "今月のおすすめ",
+    link: "/category/all"
   },
   {
     id: 3,
-    name: "私たちについて",
-    link: "/about",
+    name: "サービスについて",
+    link: "/aboutus",
   },
   {
     id: 4,
     name: "お問い合わせ",
-    link: "/contact",
+    link: "/contactus",
   },
 ];
 
@@ -41,7 +40,7 @@ const Navbar = () => {
 
   return (
     <div className="bg-white shadow">
-      <div className="container mx-auto px-6 sm:px-10 md:px-20 lg:px-32">
+      <div className="container mx-auto px-6 sm:px-10 md:px-16 md:mx-30 lg:px-32">
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-20">
             <a href="/">
@@ -52,13 +51,13 @@ const Navbar = () => {
               />
             </a>
 
-            <div className="hidden lg:block">
-              <ul className="flex items-center gap-6 md:gap-10 lg:gap-14">
+            <div className="hidden xl:block">
+              <ul className="flex items-center gap-8 md:gap-20 lg:gap-10">
                 {MenuLinks.map((data) => (
                   <li key={data.id}>
                     <a
                       href={data.link}
-                      className="inline-block font-semibold text-gray-600 hover:text-black text-base"
+                      className="inline-block font-semibold text-gray-600 hover:text-black text-base md:text-base"
                     >
                       {data.name}
                     </a>
@@ -68,16 +67,7 @@ const Navbar = () => {
             </div>
           </div>
 
-          <div className="flex items-center gap-6">
-            <div className="relative group block">
-              <input
-                type="text"
-                placeholder="Search"
-                className="w-0 group-hover:w-[100px] sm:group-hover:w-[150px] md:group-hover:w-[250px] transition-all duration-300 rounded-lg group-hover:border group-hover:border-gray-500 px-3 py-1 focus:outline-none"
-              />
-              <IoMdSearch className="text-3xl group-hover:text-red-500 text-gray-600 absolute top-1/2 -translate-y-1/2 lg:right-3 right-0 duration-200" />
-            </div>
-
+          <div className="flex items-center gap-6 md:ml-10 md:gap-10 lg:gap-12">
             <div className="relative">
               <button
                 onClick={toggleDropdown}
@@ -88,7 +78,6 @@ const Navbar = () => {
                   3
                 </span>
               </button>
-
               <div
                 className={`absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border transition-all duration-300 z-50 ${
                   isDropdownOpen
@@ -113,7 +102,7 @@ const Navbar = () => {
             <div className="relative">
               <button
                 onClick={toggleMenu}
-                className="lg:hidden text-gray-600 hover:text-black focus:outline-none"
+                className="xl:hidden text-gray-600 hover:text-black focus:outline-none"
               >
                 <HiMenuAlt3 className="text-3xl" />
               </button>

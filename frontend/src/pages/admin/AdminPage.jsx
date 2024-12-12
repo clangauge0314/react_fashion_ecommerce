@@ -14,7 +14,7 @@ function AdminPage() {
 
     try {
       const response = await axios.post(
-        "http://183.107.128.217:3000/api/auth/login",
+        `${import.meta.env.VITE_NODEJS_API_URL}/api/auth/login`,
         {
           email,
           password,

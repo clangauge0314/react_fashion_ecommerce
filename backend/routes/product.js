@@ -24,7 +24,7 @@ const upload = multer({
   storage,
   limits: { fileSize: 5 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
-    const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+    const allowedTypes = ["image/jpg", "image/jpeg", "image/png", "image/webp"];
     if (!allowedTypes.includes(file.mimetype)) {
       return cb(new Error("지원되지 않는 파일 형식입니다"));
     }
@@ -32,19 +32,15 @@ const upload = multer({
   },
 });
 
+// 상품 생성
 router.post("/", verifyToken, upload.array("image"), async (req, res) => {
   try {
-    const imagePaths = [];
     const compressedImagePaths = [];
-
-    req.files.forEach((file) => {
-      imagePaths.push(file.path.replace(/\\/g, "/"));
-    });
 
     for (const file of req.files) {
       const compressedPath = `uploads/compressed-${file.filename}`;
       await sharp(file.path)
-        .toFormat("webp") 
+        .toFormat("webp")
         .webp({ quality: 80 })
         .toFile(compressedPath);
 
@@ -53,8 +49,7 @@ router.post("/", verifyToken, upload.array("image"), async (req, res) => {
 
     const newProductData = {
       ...req.body,
-      image: imagePaths, 
-      compressedImage: compressedImagePaths, 
+      image: compressedImagePaths, // 압축된 이미지 경로만 저장
       color: JSON.parse(req.body.color),
     };
 
@@ -77,6 +72,7 @@ router.get("/", async (req, res) => {
   }
 });
 
+// 상품 상세 조회
 router.get("/:id", async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
@@ -88,13 +84,26 @@ router.get("/:id", async (req, res) => {
   }
 });
 
+// 상품 업데이트
 router.put("/:id", verifyToken, upload.array("image"), async (req, res) => {
   try {
     const { existingImage, color, stock, ...updateData } = req.body;
 
-    const uploadedImagePaths = req.files
-      ? req.files.map((file) => file.path.replace(/\\/g, "/"))
-      : [];
+    const uploadedImagePaths = [];
+    if (req.files) {
+      for (const file of req.files) {
+        const compressedPath = `uploads/compressed-${file.filename}`;
+        await sharp(file.path)
+          .toFormat("webp")
+          .webp({ quality: 80 })
+          .toFile(compressedPath);
+
+        uploadedImagePaths.push(compressedPath.replace(/\\/g, "/"));
+
+        // 원본 파일 삭제
+        fs.unlinkSync(file.path);
+      }
+    }
 
     const product = await Product.findById(req.params.id);
     if (!product) {
@@ -163,6 +172,7 @@ router.put("/:id", verifyToken, upload.array("image"), async (req, res) => {
   }
 });
 
+// 상품 삭제
 router.delete("/:id", verifyToken, async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
@@ -192,6 +202,5 @@ router.delete("/:id", verifyToken, async (req, res) => {
     res.status(500).json({ message: "商品を削除できませんでした", error });
   }
 });
-``;
 
 module.exports = router;

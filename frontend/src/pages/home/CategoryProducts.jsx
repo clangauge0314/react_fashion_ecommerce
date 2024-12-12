@@ -28,7 +28,7 @@ const CategoryProducts = () => {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          "http://183.107.128.217:3000/api/products"
+          `${import.meta.env.VITE_NODEJS_API_URL}/api/products`
         );
         const data = response.data;
         setProducts(data);
@@ -707,7 +707,7 @@ const CategoryProducts = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3 gap-6 w-full">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3 gap-6 w-full">
           {filteredItems.length === 0 ? (
             <p className="text-center text-gray-500 col-span-full">
               検索された商品がありません。
@@ -717,7 +717,7 @@ const CategoryProducts = () => {
               <Link to={`/product/${product._id}`} key={product._id}>
                 <div className="border border-gray-200 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300">
                   <img
-                    src={`http://183.107.128.217:3000/${product.image?.[0]}`}
+                    src={`${import.meta.env.VITE_NODEJS_API_URL}/${product.image?.[0]}`}
                     alt={product.name}
                     className="w-full h-48 object-cover"
                   />

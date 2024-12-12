@@ -1,0 +1,15 @@
+{
+    "presets": ["@babel/preset-react"],
+    "plugins": [
+      [
+        "import",
+        {
+          "libraryName": "react-icons",
+          "libraryDirectory": "lib",
+          "camel2DashComponentName": false
+        },
+        "react-icons"
+      ]
+    ]
+  }
+  

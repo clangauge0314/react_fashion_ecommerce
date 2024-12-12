@@ -1,3 +1,4 @@
+import React from "react";
 import { StrictMode, Suspense, lazy } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
@@ -8,18 +9,21 @@ import {
   redirect,
 } from "react-router-dom";
 import axios from "axios";
+import LoadingSpinner from "./components/LoadingSpinner";
 
-// Lazy Loading으로 페이지 로드
+
 const Home = lazy(() => import("./pages/home/Home.jsx"));
 const SingleProduct = lazy(() => import("./pages/home/SingleProduct.jsx"));
-const CategoryProducts = lazy(() =>
-  import("./pages/home/CategoryProducts.jsx")
-);
+const CategoryProducts = lazy(() => import("./pages/home/CategoryProducts.jsx"));
+const AboutUs = lazy(() => import("./pages/home/AboutUs.jsx"));
+const ContactUs = lazy(() => import("./pages/home/ContactUs.jsx"));
+
 const AdminPage = lazy(() => import("./pages/admin/AdminPage.jsx"));
-const AdminDashboard = lazy(() =>
-  import("./pages/admin/AdminDashboard.jsx")
-);
+const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard.jsx"));
 const CreateProduct = lazy(() => import("./pages/admin/CreateProduct.jsx"));
+const AdminContactUs = lazy(() => import("./pages/admin/AdminContactUs.jsx"));
+const AdminOrder = lazy(() => import("./pages/admin/AdminOrder.jsx"));
+const NoticeBoard = lazy(() => import("./pages/home/NoticeBoard.jsx"));
 
 const validateToken = async () => {
   const token = localStorage.getItem("token");
@@ -31,7 +35,7 @@ const validateToken = async () => {
 
   try {
     const response = await axios.post(
-      "http://183.107.128.217:3000/api/auth/verify",
+      `${import.meta.env.VITE_NODEJS_API_URL}/api/auth/verify`,
       null,
       {
         headers: { Authorization: `Bearer ${token}` },
@@ -50,6 +54,27 @@ const validateToken = async () => {
   }
 };
 
+const checkAdminAuth = async () => {
+  const token = localStorage.getItem("token");
+  if (token) {
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_NODEJS_API_URL}/api/auth/verify`,
+        null,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      if (response.data.valid) {
+        return redirect("/admin/dashboard");
+      }
+    } catch (error) {
+      return null;
+    }
+  }
+  return null;
+};
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -58,7 +83,7 @@ const router = createBrowserRouter([
       {
         path: "/",
         element: (
-          <Suspense fallback={<div>Loading...</div>}>
+          <Suspense fallback={<LoadingSpinner />}>
             <Home />
           </Suspense>
         ),
@@ -66,7 +91,7 @@ const router = createBrowserRouter([
       {
         path: "/product/:id",
         element: (
-          <Suspense fallback={<div>Loading...</div>}>
+          <Suspense fallback={<LoadingSpinner />}>
             <SingleProduct />
           </Suspense>
         ),
@@ -74,8 +99,32 @@ const router = createBrowserRouter([
       {
         path: "/category/:category",
         element: (
-          <Suspense fallback={<div>Loading...</div>}>
+          <Suspense fallback={<LoadingSpinner />}>
             <CategoryProducts />
+          </Suspense>
+        ),
+      },
+      {
+        path: "/aboutus",
+        element: (
+          <Suspense fallback={<LoadingSpinner />}>
+            <AboutUs />
+          </Suspense>
+        ),
+      },
+      {
+        path: "/contactus",
+        element: (
+          <Suspense fallback={<LoadingSpinner />}>
+            <ContactUs />
+          </Suspense>
+        ),
+      },
+      {
+        path: "/noticeboard",
+        element: (
+          <Suspense fallback={<LoadingSpinner />}>
+            <NoticeBoard />
           </Suspense>
         ),
       },
@@ -84,28 +133,47 @@ const router = createBrowserRouter([
   {
     path: "/admin",
     element: (
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={<LoadingSpinner />}>
         <AdminPage />
       </Suspense>
     ),
+    loader: checkAdminAuth,
   },
   {
     path: "/admin/dashboard",
     element: (
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={<LoadingSpinner />}>
         <AdminDashboard />
       </Suspense>
     ),
-    loader: validateToken, // 유효성 검증
+    loader: validateToken,
   },
   {
     path: "/admin/create",
     element: (
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={<LoadingSpinner />}>
         <CreateProduct />
       </Suspense>
     ),
-    loader: validateToken, // 유효성 검증
+    loader: validateToken,
+  },
+  {
+    path: "/admin/contact",
+    element: (
+      <Suspense fallback={<LoadingSpinner />}>
+        <AdminContactUs />
+      </Suspense>
+    ),
+    loader: validateToken,
+  },
+  {
+    path: "/admin/order",
+    element: (
+      <Suspense fallback={<LoadingSpinner />}>
+        <AdminOrder />
+      </Suspense>
+    ),
+    loader: validateToken,
   },
 ]);
 
