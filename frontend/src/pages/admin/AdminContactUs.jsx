@@ -12,27 +12,6 @@ const ContactCard = ({ contact, onStatusChange, onDelete }) => {
           <h3 className="font-semibold text-lg">{contact.name}</h3>
           <p className="text-gray-600">{contact.email}</p>
         </div>
-        <div className="flex items-center space-x-2">
-          <select
-            value={contact.status}
-            onChange={(e) => onStatusChange(contact._id, e.target.value)}
-            className={`px-2 py-1 rounded text-sm ${
-              contact.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-              contact.status === 'completed' ? 'bg-green-100 text-green-800' :
-              'bg-red-100 text-red-800'
-            }`}
-          >
-            <option value="pending">対応待ち</option>
-            <option value="completed">対応済み</option>
-            <option value="cancelled">キャンセル</option>
-          </select>
-          <button
-            onClick={() => onDelete(contact._id)}
-            className="px-2 py-1 text-sm text-white bg-red-600 hover:bg-red-700 rounded"
-          >
-            削除
-          </button>
-        </div>
       </div>
 
       <div className="space-y-2">
@@ -55,6 +34,27 @@ const ContactCard = ({ contact, onStatusChange, onDelete }) => {
           <p className="text-gray-600">
             {new Date(contact.updatedAt).toLocaleString()}
           </p>
+        </div>
+        <div className="flex items-center space-x-2 mt-2">
+          <select
+            value={contact.status}
+            onChange={(e) => onStatusChange(contact._id, e.target.value)}
+            className={`px-2 py-1 rounded text-sm ${
+              contact.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+              contact.status === 'completed' ? 'bg-green-100 text-green-800' :
+              'bg-red-100 text-red-800'
+            }`}
+          >
+            <option value="pending">対応待ち</option>
+            <option value="completed">対応済み</option>
+            <option value="cancelled">キャンセル</option>
+          </select>
+          <button
+            onClick={() => onDelete(contact._id)}
+            className="px-2 py-1 text-sm text-white bg-red-600 hover:bg-red-700 rounded"
+          >
+            削除
+          </button>
         </div>
       </div>
     </div>
@@ -275,6 +275,12 @@ function AdminContactUs() {
               className="block py-2 px-4 text-gray-700 hover:bg-gray-100 rounded"
             >
               オーダー
+            </Link>
+            <Link
+              to="/admin/post"
+              className="block py-2 px-4 text-gray-700 hover:bg-gray-100 rounded"
+            >
+              お知らせ
             </Link>
           </nav>
         </div>

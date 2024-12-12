@@ -14,7 +14,7 @@ const AboutUs = () => {
         </h1>
       </div>
 
-      <div className="py-16 px-8 md:px-16 lg:px-32 text-center">
+      <div className="py-16 px-4 sm:px-6 lg:px-8 text-center">
         <h2 className="text-4xl font-semibold mb-6">Who We Are</h2>
         <p className="text-lg leading-relaxed">
           We are a passionate team dedicated to delivering exceptional services

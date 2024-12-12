@@ -7,7 +7,7 @@ const authRoutes = require("./routes/auth");
 const productRoutes = require("./routes/product");
 const contactRoutes = require("./routes/contact");
 const orderRoutes = require("./routes/order");
-
+const postRoutes = require("./routes/post");
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -19,6 +19,7 @@ app.use("/api/products", productRoutes);
 app.use("/uploads", express.static("uploads"));
 app.use("/api/contact", contactRoutes);
 app.use("/api/order", orderRoutes);
+app.use("/api/post", postRoutes);
 
 mongoose
   .connect(process.env.MONGO_URI, {

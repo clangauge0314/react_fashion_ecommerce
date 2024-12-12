@@ -289,6 +289,12 @@ function AdminOrder() {
             >
               オーダー
             </Link>
+            <Link
+              to="/admin/post"
+              className="block py-2 px-4 text-gray-700 hover:bg-gray-100 rounded"
+            >
+              お知らせ
+            </Link>
           </nav>
         </div>
       </div>

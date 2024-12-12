@@ -98,7 +98,7 @@ const Category = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="max-w-screen-2xl mx-auto container xl:px-28 px-4 py-20">
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-20">
       <div className="block lg:hidden">
         <Swiper
           slidesPerView={1}

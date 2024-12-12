@@ -24,6 +24,7 @@ const CreateProduct = lazy(() => import("./pages/admin/CreateProduct.jsx"));
 const AdminContactUs = lazy(() => import("./pages/admin/AdminContactUs.jsx"));
 const AdminOrder = lazy(() => import("./pages/admin/AdminOrder.jsx"));
 const NoticeBoard = lazy(() => import("./pages/home/NoticeBoard.jsx"));
+const AdminPost = lazy(() => import("./pages/admin/AdminPost.jsx"));
 
 const validateToken = async () => {
   const token = localStorage.getItem("token");
@@ -84,7 +85,9 @@ const router = createBrowserRouter([
         path: "/",
         element: (
           <Suspense fallback={<LoadingSpinner />}>
-            <Home />
+            <div className="px-2 sm:px-4">
+              <Home />
+            </div>
           </Suspense>
         ),
       },
@@ -92,7 +95,9 @@ const router = createBrowserRouter([
         path: "/product/:id",
         element: (
           <Suspense fallback={<LoadingSpinner />}>
-            <SingleProduct />
+            <div className="px-2 sm:px-4">
+              <SingleProduct />
+            </div>
           </Suspense>
         ),
       },
@@ -100,7 +105,9 @@ const router = createBrowserRouter([
         path: "/category/:category",
         element: (
           <Suspense fallback={<LoadingSpinner />}>
-            <CategoryProducts />
+            <div className="px-2 sm:px-4">
+              <CategoryProducts />
+            </div>
           </Suspense>
         ),
       },
@@ -171,6 +178,15 @@ const router = createBrowserRouter([
     element: (
       <Suspense fallback={<LoadingSpinner />}>
         <AdminOrder />
+      </Suspense>
+    ),
+    loader: validateToken,
+  },
+  {
+    path: "/admin/post",
+    element: (
+      <Suspense fallback={<LoadingSpinner />}>
+        <AdminPost />
       </Suspense>
     ),
     loader: validateToken,

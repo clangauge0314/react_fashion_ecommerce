@@ -164,7 +164,7 @@ const CategoryProducts = () => {
   };
 
   return (
-    <div className="flex pt-20 space-x-6 px-4 md:px-10 lg:px-20 xl:px-80 overflow-auto">
+    <div className="flex pt-20 px-4 sm:px-6 lg:px-8">
       <div
         className="hidden md:block w-1/4 space-y-4 sticky top-20"
         style={{ minWidth: "280px" }}

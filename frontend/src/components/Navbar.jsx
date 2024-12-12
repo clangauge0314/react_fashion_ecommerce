@@ -16,11 +16,16 @@ const MenuLinks = [
   },
   {
     id: 3,
+    name: "お知らせ",
+    link: "/noticeboard",
+  },
+  {
+    id: 4,
     name: "サービスについて",
     link: "/aboutus",
   },
   {
-    id: 4,
+    id: 5,
     name: "お問い合わせ",
     link: "/contactus",
   },

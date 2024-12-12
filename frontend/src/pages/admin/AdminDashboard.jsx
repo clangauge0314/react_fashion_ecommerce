@@ -550,7 +550,7 @@ function AdminDashboard() {
       Swal.fire("成功", "選択した商品が削除されました。", "success");
     } catch (error) {
       console.error("Failed to delete selected products:", error);
-      Swal.fire("エラー", "商品を削除できま���んでした。", "error");
+      Swal.fire("エラー", "商品を削除できませんでした。", "error");
     }
   };
 
@@ -755,6 +755,12 @@ function AdminDashboard() {
               className="block py-2 px-4 text-gray-700 hover:bg-gray-100 rounded"
             >
               オーダー
+            </Link>
+            <Link
+              to="/admin/post"
+              className="block py-2 px-4 text-gray-700 hover:bg-gray-100 rounded"
+            >
+              お知らせ
             </Link>
           </nav>
         </div>
