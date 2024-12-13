@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Post = require("../models/Post");
 const verifyToken = require("../middleware/verifyToken");
+const PostView = require("../models/PostView");
 
 router.get("/", async (req, res) => {
   try {
@@ -19,10 +20,41 @@ router.get("/:id", async (req, res) => {
       return res.status(404).json({ message: "Post not found" });
     }
 
-    post.viewCount += 1;
-    await post.save();
+    const prevPost = await Post.findOne({ 
+      createdAt: { $lt: post.createdAt } 
+    }).sort({ createdAt: -1 }).select('title _id');
+    
+    const nextPost = await Post.findOne({ 
+      createdAt: { $gt: post.createdAt } 
+    }).sort({ createdAt: 1 }).select('title _id');
 
-    res.status(200).json(post);
+    const ip = req.ip;
+    const userAgent = req.headers['user-agent'];
+    
+    const existingView = await PostView.findOne({
+      postId: post._id,
+      ip,
+      userAgent,
+      viewedAt: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) } // 24시간 이내
+    });
+
+    if (!existingView) {
+      await PostView.create({
+        postId: post._id,
+        ip,
+        userAgent
+      });
+      post.viewCount += 1;
+      await post.save();
+    }
+
+    res.status(200).json({
+      post,
+      navigation: {
+        prevPost,
+        nextPost
+      }
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

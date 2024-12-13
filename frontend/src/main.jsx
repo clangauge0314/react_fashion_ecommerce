@@ -11,19 +11,19 @@ import {
 import axios from "axios";
 import LoadingSpinner from "./components/LoadingSpinner";
 
-
 const Home = lazy(() => import("./pages/home/Home.jsx"));
 const SingleProduct = lazy(() => import("./pages/home/SingleProduct.jsx"));
 const CategoryProducts = lazy(() => import("./pages/home/CategoryProducts.jsx"));
 const AboutUs = lazy(() => import("./pages/home/AboutUs.jsx"));
 const ContactUs = lazy(() => import("./pages/home/ContactUs.jsx"));
+const Posts = lazy(() => import("./pages/home/Posts.jsx"));
+const SinglePost = lazy(() => import("./pages/home/SinglePost.jsx"));
 
 const AdminPage = lazy(() => import("./pages/admin/AdminPage.jsx"));
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard.jsx"));
 const CreateProduct = lazy(() => import("./pages/admin/CreateProduct.jsx"));
 const AdminContactUs = lazy(() => import("./pages/admin/AdminContactUs.jsx"));
 const AdminOrder = lazy(() => import("./pages/admin/AdminOrder.jsx"));
-const NoticeBoard = lazy(() => import("./pages/home/NoticeBoard.jsx"));
 const AdminPost = lazy(() => import("./pages/admin/AdminPost.jsx"));
 
 const validateToken = async () => {
@@ -128,10 +128,18 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "/noticeboard",
+        path: "/post/:id",
         element: (
           <Suspense fallback={<LoadingSpinner />}>
-            <NoticeBoard />
+            <SinglePost />
+          </Suspense>
+        ),
+      },
+      {
+        path: "/posts",
+        element: (
+          <Suspense fallback={<LoadingSpinner />}>
+            <Posts />
           </Suspense>
         ),
       },

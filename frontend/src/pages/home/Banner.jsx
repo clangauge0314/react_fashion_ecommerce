@@ -6,9 +6,10 @@ const Banner = () => {
   return (
     <div className="bg-white px-4 sm:px-6 lg:px-8">
       <div className="py-28 flex flex-col md:flex-row justify-between items-center gap-14">
-        <div className="md:w-1/2 ml-auto">
-          <h1 className="text-6xl sm:text-5xl font-light mb-10">MAMI SELECT</h1>
-          <p className="text-base mb-7"></p>
+        <div className="md:w-1/2 sm:ml-auto lg:ml-32">
+          <h1 className="text-5xl md:text-7xl font-light mb-10 leading-relaxed">MAMI SELECT</h1>
+          <p className="text-base mb-7">abc
+          </p>
           <div className="flex flex-col items-start gap-4">
             <a href="/category/all" className="bg-black hover:bg-gray-700 px-8 py-4 text-white font-semibold rounded-sm flex items-center gap-2 no-underline">
               <span className="block text-center">サイトの商品を見る</span>

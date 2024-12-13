@@ -166,7 +166,7 @@ const CategoryProducts = () => {
   return (
     <div className="flex pt-20 px-4 sm:px-6 lg:px-8">
       <div
-        className="hidden md:block w-1/4 space-y-4 sticky top-20"
+        className="hidden md:block w-1/4 space-y-4 sticky top-20 mr-8"
         style={{ minWidth: "280px" }}
       >
         <h2 className="text-xl font-semibold mb-2">絞込み検索</h2>
@@ -644,7 +644,7 @@ const CategoryProducts = () => {
         </div>
       )}
 
-      <div className="flex-grow">
+      <div className="flex-grow pl-4">
         <div className="flex items-center gap-2 text-Black/50 mb-4">
           <a href="/" className="hover:underline">
             ホーム
@@ -715,19 +715,21 @@ const CategoryProducts = () => {
           ) : (
             currentItems.map((product) => (
               <Link to={`/product/${product._id}`} key={product._id}>
-                <div className="border border-gray-200 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300">
-                  <img
-                    src={`${import.meta.env.VITE_NODEJS_API_URL}/${product.image?.[0]}`}
-                    alt={product.name}
-                    className="w-full h-48 object-cover"
-                  />
-                  <div className="p-4">
-                    <h2 className="text-lg font-medium text-gray-900">
+                <div className="border border-gray-200 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300 h-[360px]">
+                  <div className="h-[240px]">
+                    <img
+                      src={`${import.meta.env.VITE_NODEJS_API_URL}/${product.image?.[0]}`}
+                      alt={product.name}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="p-4 h-[120px] flex flex-col justify-between">
+                    <h2 className="text-lg font-medium text-gray-900 line-clamp-2">
                       {product.name.length > 20
                         ? `${product.name.slice(0, 20)}...`
                         : product.name}
                     </h2>
-                    <p className="text-xl font-semibold text-red-500 mt-2">
+                    <p className="text-xl font-semibold text-red-500">
                       ¥{product.price.toLocaleString()}
                     </p>
                   </div>
